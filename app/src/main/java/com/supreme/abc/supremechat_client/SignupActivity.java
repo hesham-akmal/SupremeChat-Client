@@ -43,7 +43,7 @@ public class SignupActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Integer... integers) {
             try {
-                socket = new Socket(MainActivity.MainServerIP, MainActivity.MainServerPORT);
+                socket = new Socket(LoginActivity.MainServerIP, LoginActivity.MainServerPORT);
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                 out.println(usernameText.getText().toString());
                 usernameText.setText("");

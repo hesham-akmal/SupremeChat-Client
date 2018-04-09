@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.supreme.abc.supremechat_client.MainActivity">
+    tools:context=".SignupActivity">
+
+
 
 
 
@@ -34,34 +36,43 @@
             android:layout_below="@id/username_text"
             android:layout_centerHorizontal="true"/>
 
-        <TextView
-            android:id="@+id/signup_link"
-            android:text="Don't have an account?"
-            android:layout_below="@id/password_text"
-            android:textSize="15dp"
-            android:layout_marginTop="5dp"
-            android:textColor="@color/linkColor"
-            android:textStyle=""
-            android:paddingStart="80dp"
-            android:layout_width= "wrap_content"
+
+        <EditText
+            android:id="@+id/confirm_password_text"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Confirm Password"
+            android:inputType="textPassword"
+            android:layout_below="@id/password_text"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/err_password"
+            android:layout_below="@+id/confirm_password_text"
             android:layout_centerHorizontal="true"
-            android:onClick="redirectView"
+            android:text="Password mismatch"
+            android:visibility="gone"
+            android:textColor="@color/errorColor"
             />
 
+
         <Button
-            android:id="@+id/login_button"
+            android:id="@+id/signup_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:text="login"
-            android:layout_below="@id/signup_link"
+            android:text="Sign Up"
             android:layout_centerHorizontal="true"
-            android:onClick="BtnClick"
+            android:onClick="SignUp"
+            android:layout_below="@id/err_password"
             />
 
 
     </RelativeLayout>
 
-</android.support.constraint.ConstraintLayout>
 
+
+</android.support.constraint.ConstraintLayout>

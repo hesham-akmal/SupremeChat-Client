@@ -1,5 +1,6 @@
 package com.supreme.abc.supremechat_client;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
 import java.io.PrintWriter;
 import java.net.Socket;
 
@@ -17,8 +19,8 @@ public class MainActivity extends AppCompatActivity {
 
     //HeshamPC = 197.52.21.251
     //Grey&Ahmad = "156.204.165.39"
-    public String MainServerIP = "156.204.165.39" ;
-    public int MainServerPORT = 3000 ;
+    public static String MainServerIP = "156.204.165.39";
+    public static int MainServerPORT = 3000;
 
     //Clicking button
     public void BtnClick(View view) {
@@ -33,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Integer... integers) {
             try {
-                socket = new Socket(MainServerIP,MainServerPORT );
+                socket = new Socket(MainServerIP, MainServerPORT);
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                 out.println(usernameText.getText().toString());
                 usernameText.setText("");
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +59,12 @@ public class MainActivity extends AppCompatActivity {
         usernameText = findViewById(R.id.username_text);
         passwordText = findViewById(R.id.password_text);
         btn = findViewById(R.id.login_button);
+
+    }
+
+    public void redirectView(View view) {
+        Intent i = new Intent(getApplicationContext(), SignupActivity.class);
+        startActivity(i);
 
     }
 }

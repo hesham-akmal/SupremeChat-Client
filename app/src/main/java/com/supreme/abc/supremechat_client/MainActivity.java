@@ -17,8 +17,6 @@ public class MainActivity extends AppCompatActivity {
     EditText usernameText, passwordText;
     Button btn;
 
-    //HeshamPC = 197.52.21.251
-    //Grey&Ahmad = "156.204.165.39"
     public static String MainServerIP = "156.204.165.39";
     public static int MainServerPORT = 3000;
 

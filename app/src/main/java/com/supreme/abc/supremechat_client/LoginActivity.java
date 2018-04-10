@@ -8,23 +8,22 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class MainActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
     EditText usernameText, passwordText;
     Button btn;
 
-    public static String MainServerIP = "156.204.165.39";
+    //public static String MainServerIP = "197.52.21.251"; //Hesham
+    public static String MainServerIP = "156.204.165.39"; //Grey&Ahmed
     public static int MainServerPORT = 3000;
 
     //Clicking button
     public void BtnClick(View view) {
         new Client().execute();//connect and send text
     }
-
 
     private class Client extends AsyncTask<Integer, Void, Void> {
         private Socket socket;
@@ -57,12 +56,21 @@ public class MainActivity extends AppCompatActivity {
         usernameText = findViewById(R.id.username_text);
         passwordText = findViewById(R.id.password_text);
         btn = findViewById(R.id.login_button);
-
     }
 
     public void redirectView(View view) {
         Intent i = new Intent(getApplicationContext(), SignupActivity.class);
         startActivity(i);
-
     }
+
+    //This should be called when the server authenticates the login info (user and pass are ok)
+    public void StartMain(String a, String b, boolean admin){
+        Intent intent = new Intent(getBaseContext(), Main.class);
+        //Send user,pass,admin to next Activity
+        intent.putExtra("username", a);
+        intent.putExtra("password", b);
+        intent.putExtra("admin", admin);
+        startActivity(intent);
+    }
+
 }

@@ -21,7 +21,7 @@ public class StatusHandler extends AppCompatActivity {
         @Override
         public void run() {
             //Set Status to idle
-            Main.loggedUser.updateStatusAndSync(User.Status.Idle);
+            ChatActivity.loggedUser.updateStatusAndSync(User.Status.Idle);
             //Toast.makeText(getApplicationContext(), "idle for 1 min", Toast.LENGTH_SHORT).show();
         }
     };
@@ -62,7 +62,7 @@ public class StatusHandler extends AppCompatActivity {
 
         @Override
         public void run() {
-            Main.loggedUser.updateLastLoginAndSync();
+            ChatActivity.loggedUser.updateLastLoginAndSync();
             //Toast.makeText(getApplicationContext(), "60 sec went by", Toast.LENGTH_SHORT).show();
             LastLoginTimerHandler.postDelayed(this, 60000);
         }

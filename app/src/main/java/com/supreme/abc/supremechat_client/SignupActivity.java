@@ -1,5 +1,6 @@
 package com.supreme.abc.supremechat_client;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,7 +30,9 @@ public class SignupActivity extends AppCompatActivity {
 
     public void SignUp(View view){
         if (passwordText.getText().toString().equals(passwordConfirmText.getText().toString())) {
-            new SignUpConnection().execute();
+//            new SignUpConnection().execute();
+            Intent i = new Intent(getApplicationContext(), ChatActivity.class);
+            startActivity(i);
         }else{
             errorPassword.setVisibility(View.VISIBLE);
         }

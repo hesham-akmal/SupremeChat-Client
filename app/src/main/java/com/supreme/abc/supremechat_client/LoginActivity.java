@@ -17,12 +17,20 @@ public class LoginActivity extends AppCompatActivity {
     Button btn;
 
     //public static String MainServerIP = "197.52.21.251"; //Hesham
-    public static String MainServerIP = "156.204.165.39"; //Grey&Ahmed
+    public static String MainServerIP = "156.204.153.16"; //Grey&Ahmed
     public static int MainServerPORT = 3000;
 
     //Clicking button
     public void BtnClick(View view) {
-        new Client().execute();//connect and send text
+
+        //temp offline
+        if (usernameText.getText().toString().equalsIgnoreCase("admin") && passwordText.getText().toString().equalsIgnoreCase("admin")) {
+            StartMain("admin", "admin", true);
+        } else {
+            new Client().execute();//connect and send text
+
+        }
+
     }
 
     private class Client extends AsyncTask<Integer, Void, Void> {
@@ -34,8 +42,8 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 socket = new Socket(MainServerIP, MainServerPORT);
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                out.println(usernameText.getText().toString());
-                usernameText.setText("");
+                out.println(usernameText.getText().toString() + "," + passwordText.getText().toString() + "," + socket.getInetAddress().getHostAddress());
+                //usernameText.setText("");
                 out.flush();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -64,8 +72,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     //This should be called when the server authenticates the login info (user and pass are ok)
-    public void StartMain(String a, String b, boolean admin){
-        Intent intent = new Intent(getBaseContext(), Main.class);
+    public void StartMain(String a, String b, boolean admin) {
+        Intent intent = new Intent(getBaseContext(), ChatActivity.class);
         //Send user,pass,admin to next Activity
         intent.putExtra("username", a);
         intent.putExtra("password", b);

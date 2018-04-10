@@ -11,14 +11,12 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends StatusHandler {
 
     ImageView senderPic;
     private BottomNavigationView bottomNavigationView;
     //This activity should contain Friends list fragment, and Chats fragment
-    //User MUST be logged in to access this activity
-    public static User loggedUser;
-
+    //mainUser MUST be logged in successfully and created to access this activity
 
     private ChatAdapter chatAdapter;
 
@@ -53,33 +51,20 @@ public class ChatActivity extends AppCompatActivity {
 
         //getActionBar().setIcon(R.drawable.my_icon);
 
-        //Syncing server user (Which is received from last activity) with "loggedUser" object.
-        String username = getIntent().getStringExtra("username");
-        String password = getIntent().getStringExtra("password");
-        boolean admin = getIntent().getBooleanExtra("admin", false);
-        loggedUser = new
-
-                User(username, password, admin);
-        //loggedUser must be correctly initialized at this point
-
-
         ListView chatListView = (ListView) findViewById(R.id.list);
 
         //temp list of users
-        List<User> tempUser = new ArrayList<>();
-        User a = new User("user1", "1", false);
-        User b = new User("user2", "2", false);
-        User c = new User("user3", "3", false);
+        List<Friend> tempUser = new ArrayList<>();
+        Friend a = new Friend("user1",false, Friend.Status.Online,"6pm","19.00.0");
+        Friend b = new Friend("user2",false, Friend.Status.Online,"8pm","19.00.0");
+        Friend c = new Friend("user3",false, Friend.Status.Online,"7pm","19.00.0");
 
         tempUser.add(a);
         tempUser.add(b);
         tempUser.add(c);
-        chatAdapter = new
-
-                ChatAdapter(this, tempUser);
+        chatAdapter = new ChatAdapter(this, tempUser);
 
         chatListView.setAdapter(chatAdapter);
-
 
         //start LastLogin Timer
         //LastLoginTimerHandler.postDelayed(LastLoginRunnable, 0);

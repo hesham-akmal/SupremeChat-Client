@@ -1,81 +1,58 @@
 package com.supreme.abc.supremechat_client;
 
-import java.util.Calendar;
+import java.util.Hashtable;
 
 public class User {
-    public User(String username, String password, boolean admin) {
-        this.username = username;
-        this.password = password;
-        this.admin = admin;
-        this.status = Status.Online;
-        setLastLogin(Calendar.getInstance().getTime().toString());
-        syncServer();
-    }
-
     enum Status {
         Offline,
         Idle,
-        Online;
-    };
-
+        Online
+    }
     private String username;
-    private String password;
     private boolean admin;
-    private String lastLogin;
     private Status status;
+    private String IP;
+    private Hashtable<String, String> friendList;
 
-    public String getUsername() {
-        return username;
+    public static User mainUser;
+    //This should be called when the server authenticates the login info (user and pass are ok)
+    public static void createMainUserObj(String username, boolean admin, String IP, Hashtable<String, String> friendList){
+        //Syncing server user with "mainUser" object.
+        mainUser = new User(username, admin, IP, friendList);
     }
 
-    public void setUsername(String username) {
+    private User(String username, boolean admin, String IP, Hashtable<String, String> friendList ) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public boolean isAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(boolean admin) {
         this.admin = admin;
+        this.status = Status.Online;
+        this.IP = IP;
+        this.friendList = friendList;
     }
 
-    public String getLastLogin() {
-        return lastLogin;
-    }
-
-    public void setLastLogin(String lastLogin) {
-        this.lastLogin = lastLogin;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void updateStatusAndSync(Status status) {
+    private void updateStatusAndSync(Status status) {
         this.status = status;
         syncServer();
     }
 
-    public void updateLastLoginAndSync(){
-        setLastLogin(Calendar.getInstance().getTime().toString());
+    public void setIdleStatus() {
+        updateStatusAndSync(Status.Idle);
+    }
+
+    public void setOfflineStatus() {
+        updateStatusAndSync(Status.Offline);
+    }
+
+    public void addFriend(String username, String IP){
+        friendList.put(username,IP);
         syncServer();
     }
 
     private void syncServer() {
-        //send Status and LastLogin to server
+        //send status,IP,friendlist for "username" to server
 
     }
 
-    //Heart beat
+    //Heart beat //For server to set Status and LastLogin for all clients.
     //Should be called by server every 5 seconds, if client disconnected abruptly then
     //server should automatically update Status as offline
     public boolean isAlive(){
@@ -83,3 +60,5 @@ public class User {
     }
 
 }
+
+

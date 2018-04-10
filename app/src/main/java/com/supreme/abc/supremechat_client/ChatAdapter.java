@@ -11,13 +11,12 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class ChatAdapter extends ArrayAdapter<User> {
+public class ChatAdapter extends ArrayAdapter<Friend> {
 
-    public ChatAdapter(Context context, List<User> books )
+    public ChatAdapter(Context context, List<Friend> books )
     {
         super(context, 0, books);
     }
-
 
     @NonNull
     @Override
@@ -29,7 +28,7 @@ public class ChatAdapter extends ArrayAdapter<User> {
             listItemView = LayoutInflater.from(getContext()).inflate(R.layout.chat_list_item, parent, false);
         }
 
-        User currentUser = getItem(position);
+        Friend currentUser = getItem(position);
 
         TextView senderTextView = (TextView) listItemView.findViewById(R.id.sender_name);
         senderTextView.setText(currentUser.getUsername());
@@ -38,8 +37,5 @@ public class ChatAdapter extends ArrayAdapter<User> {
         titleTextView.setText(currentUser.getUsername());
 
         return listItemView;
-
-
-
     }
 }

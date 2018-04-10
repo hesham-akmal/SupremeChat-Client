@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Hashtable;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -25,14 +26,12 @@ public class SignupActivity extends AppCompatActivity {
         passwordText = findViewById(R.id.password_text);
         passwordConfirmText = findViewById(R.id.confirm_password_text);
         errorPassword = findViewById(R.id.err_password);
-
     }
 
     public void SignUp(View view){
+        //If 2 passwords match
         if (passwordText.getText().toString().equals(passwordConfirmText.getText().toString())) {
 //            new SignUpConnection().execute();
-            Intent i = new Intent(getApplicationContext(), ChatActivity.class);
-            startActivity(i);
         }else{
             errorPassword.setVisibility(View.VISIBLE);
         }
@@ -46,15 +45,32 @@ public class SignupActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Integer... integers) {
             try {
-                socket = new Socket(LoginActivity.MainServerIP, LoginActivity.MainServerPORT);
+
+                String username = usernameText.getText().toString();
+                String password = passwordText.getText().toString();
+                String IP = socket.getInetAddress().getHostAddress();
+
+                socket = new Socket(Network.MainServerIP, Network.MainServerPORT);
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                out.println(usernameText.getText().toString());
-                usernameText.setText("");
+                out.println(username + "," + password + "," + IP );
                 out.flush();
+
+
+                //if success //server returns admin,friendList //create mainUserObj
+                boolean admin = false;////implement
+                Hashtable<String, String> friendList = null;////implement
+
+                User.createMainUserObj(username,admin,IP,friendList);
+                StartChatActivity();
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
         }
+    }
+
+    private void StartChatActivity() {
+        startActivity(new Intent(getApplicationContext(), ChatActivity.class));
     }
 }

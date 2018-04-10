@@ -21,7 +21,7 @@ public class StatusHandler extends AppCompatActivity {
         @Override
         public void run() {
             //Set Status to idle
-            ChatActivity.loggedUser.updateStatusAndSync(User.Status.Idle);
+            User.mainUser.setIdleStatus();
             //Toast.makeText(getApplicationContext(), "idle for 1 min", Toast.LENGTH_SHORT).show();
         }
     };
@@ -53,6 +53,10 @@ public class StatusHandler extends AppCompatActivity {
     }
 
     ///////// /////////////// /////////////////////////////////////////////////////////////////////
+  /*
+        Commented out.
+        LastLogin Time should be implemented in the server instead, for better client performance.
+
     //LastLogin HANDLER CODE//////////////////////////
     //run() runs every one minute.
 
@@ -73,6 +77,6 @@ public class StatusHandler extends AppCompatActivity {
         super.onPause();
         LastLoginTimerHandler.removeCallbacks(LastLoginRunnable);
     }
-    //////////////////////////////////////////////
+    //////////////////////////////////////////////*/
 
 }

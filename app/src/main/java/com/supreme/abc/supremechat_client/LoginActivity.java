@@ -11,40 +11,56 @@ import android.widget.EditText;
 
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Hashtable;
 
 public class LoginActivity extends AppCompatActivity {
     EditText usernameText, passwordText;
     Button btn;
-
-    //public static String MainServerIP = "197.52.21.251"; //Hesham
-    public static String MainServerIP = "156.204.153.16"; //Grey&Ahmed
-    public static int MainServerPORT = 3000;
 
     //Clicking button
     public void BtnClick(View view) {
 
         //temp offline
         if (usernameText.getText().toString().equalsIgnoreCase("admin") && passwordText.getText().toString().equalsIgnoreCase("admin")) {
-            StartMain("admin", "admin", true);
+            StartChatActivity();
         } else {
-            new Client().execute();//connect and send text
-
+            btn.setEnabled(false);
+            new ClientLogin().execute();//connect and send text
         }
-
     }
 
-    private class Client extends AsyncTask<Integer, Void, Void> {
+    public class ClientLogin extends AsyncTask<Integer, Void, Void> {
         private Socket socket;
 
         //.execute() runs code below
         @Override
         protected Void doInBackground(Integer... integers) {
             try {
-                socket = new Socket(MainServerIP, MainServerPORT);
+                /*
+                -Send username,pass,ip to server, server authenticates
+                 and returns success bool, if success: Return admin and friendList
+                 then serverside update IP,Status,lastLogin.
+                */
+
+                String username = usernameText.getText().toString();
+                String password = passwordText.getText().toString();
+                String IP = socket.getInetAddress().getHostAddress();
+
+                socket = new Socket(Network.MainServerIP, Network.MainServerPORT);
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                out.println(usernameText.getText().toString() + "," + passwordText.getText().toString() + "," + socket.getInetAddress().getHostAddress());
-                //usernameText.setText("");
+                out.println(username + "," + password + "," + IP);
                 out.flush();
+
+                //if failed, enable login btn again
+                //btn.setEnabled(true);
+
+                //if success //server returns admin,friendList //create mainUserObj
+                boolean admin = false;////implement
+                Hashtable<String, String> friendList = null;////implement
+
+                User.createMainUserObj(username,admin,IP,friendList);
+                StartChatActivity();
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -57,7 +73,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         //link button and edittext
@@ -66,19 +81,12 @@ public class LoginActivity extends AppCompatActivity {
         btn = findViewById(R.id.login_button);
     }
 
-    public void redirectView(View view) {
-        Intent i = new Intent(getApplicationContext(), SignupActivity.class);
-        startActivity(i);
+    public void StartSignUpActivity(View view) {
+        startActivity(new Intent(getApplicationContext(), SignupActivity.class));
     }
 
-    //This should be called when the server authenticates the login info (user and pass are ok)
-    public void StartMain(String a, String b, boolean admin) {
-        Intent intent = new Intent(getBaseContext(), ChatActivity.class);
-        //Send user,pass,admin to next Activity
-        intent.putExtra("username", a);
-        intent.putExtra("password", b);
-        intent.putExtra("admin", admin);
-        startActivity(intent);
+    private void StartChatActivity() {
+        startActivity(new Intent(getApplicationContext(), ChatActivity.class));
     }
 
 }

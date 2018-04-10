@@ -8,14 +8,14 @@ public class Friend {
     }
 
     private String username;
-    private boolean admin;
+    private boolean isAdmin;
     private Status status;
     private String lastLogin;
     private String IP;
 
-    public Friend(String username, boolean admin, Status status, String lastLogin, String IP) {
+    public Friend(String username, boolean isAdmin, Status status, String lastLogin, String IP) {
         this.username = username;
-        this.admin = admin;
+        this.isAdmin = isAdmin;
         this.status = status;
         this.lastLogin = lastLogin;
         this.IP = IP;

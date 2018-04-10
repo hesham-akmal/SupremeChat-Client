@@ -38,7 +38,7 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 /*
                 -Send username,pass,ip to server, server authenticates
-                 and returns success bool, if success: Return admin and friendList
+                 and returns success bool, if success: Return isAdmin and friendList
                  then serverside update IP,Status,lastLogin.
                 */
 
@@ -48,17 +48,18 @@ public class LoginActivity extends AppCompatActivity {
 
                 socket = new Socket(Network.MainServerIP, Network.MainServerPORT);
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                //must send login command too
                 out.println(username + "," + password + "," + IP);
                 out.flush();
 
                 //if failed, enable login btn again
                 //btn.setEnabled(true);
 
-                //if success //server returns admin,friendList //create mainUserObj
-                boolean admin = false;////implement
+                //if success //server returns isAdmin,friendList //create mainUserObj
+                boolean isAdmin = false;////implement
                 Hashtable<String, String> friendList = null;////implement
 
-                User.createMainUserObj(username,admin,IP,friendList);
+                User.createMainUserObj(username,isAdmin,IP,friendList);
                 StartChatActivity();
 
             } catch (Exception e) {

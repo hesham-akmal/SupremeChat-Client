@@ -9,7 +9,7 @@ public class User {
         Online
     }
     private String username;
-    private boolean admin;
+    private boolean isAdmin;
     private Status status;
     private String IP;
     private Hashtable<String, String> friendList;
@@ -21,9 +21,9 @@ public class User {
         mainUser = new User(username, admin, IP, friendList);
     }
 
-    private User(String username, boolean admin, String IP, Hashtable<String, String> friendList ) {
+    private User(String username, boolean isAdmin, String IP, Hashtable<String, String> friendList ) {
         this.username = username;
-        this.admin = admin;
+        this.isAdmin = isAdmin;
         this.status = Status.Online;
         this.IP = IP;
         this.friendList = friendList;

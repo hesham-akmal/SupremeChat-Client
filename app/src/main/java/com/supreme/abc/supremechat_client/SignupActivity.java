@@ -31,7 +31,8 @@ public class SignupActivity extends AppCompatActivity {
     public void SignUp(View view){
         //If 2 passwords match
         if (passwordText.getText().toString().equals(passwordConfirmText.getText().toString())) {
-//            new SignUpConnection().execute();
+            //btn.setEnabled(false);
+            new SignUpConnection().execute();
         }else{
             errorPassword.setVisibility(View.VISIBLE);
         }
@@ -52,15 +53,15 @@ public class SignupActivity extends AppCompatActivity {
 
                 socket = new Socket(Network.MainServerIP, Network.MainServerPORT);
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                //must send register command too
                 out.println(username + "," + password + "," + IP );
                 out.flush();
 
-
-                //if success //server returns admin,friendList //create mainUserObj
-                boolean admin = false;////implement
+                //if success //server returns isAdmin,friendList //create mainUserObj
+                boolean isAdmin = false;////implement
                 Hashtable<String, String> friendList = null;////implement
 
-                User.createMainUserObj(username,admin,IP,friendList);
+                User.createMainUserObj(username,isAdmin,IP,friendList);
                 StartChatActivity();
 
             } catch (Exception e) {

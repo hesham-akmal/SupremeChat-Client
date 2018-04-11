@@ -9,9 +9,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import java.io.PrintWriter;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Hashtable;
+
+import network_data.AuthUser;
 
 public class LoginActivity extends AppCompatActivity {
     EditText usernameText, passwordText;
@@ -38,19 +40,25 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 /*
                 -Send username,pass,ip to server, server authenticates
-                 and returns success bool, if success: Return isAdmin and friendList
+                 and returns success bool, if success: Return friendList
                  then serverside update IP,Status,lastLogin.
                 */
+
+                socket = new Socket(Network.MainServerIP, Network.MainServerPORT);
 
                 String username = usernameText.getText().toString();
                 String password = passwordText.getText().toString();
                 String IP = socket.getInetAddress().getHostAddress();
 
-                socket = new Socket(Network.MainServerIP, Network.MainServerPORT);
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+                ObjectOutputStream os = new ObjectOutputStream(socket.getOutputStream());
+                os.writeObject(new AuthUser(username,password,IP));
+                os.flush();
+
+                //PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                 //must send login command too
-                out.println(username + "," + password + "," + IP);
-                out.flush();
+                //out.println(  new authUser(username,password,IP)  );
+                //out.flush();
 
                 //if failed, enable login btn again
                 //btn.setEnabled(true);

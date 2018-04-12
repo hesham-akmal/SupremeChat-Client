@@ -83,7 +83,6 @@ public class ChatActivity extends StatusHandler {
     private void LogOut(){
         editor.putBoolean("keep", false);
         editor.putString("username", null);
-        editor.putString("password", null);
         editor.apply();
         startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         finish();

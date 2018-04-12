@@ -1,8 +1,11 @@
 package com.supreme.abc.supremechat_client;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.StrictMode;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +18,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -31,6 +35,13 @@ public class LoginActivity extends AppCompatActivity {
 
     private SharedPreferences prefs ;
     private SharedPreferences.Editor editor;
+
+    private Socket socket;
+    private ObjectInputStream ois;
+    private ObjectOutputStream oos;
+    private Command command;
+
+    ProgressDialog dialog;
 
     private enum State{
         SIGN_IN,
@@ -54,73 +65,122 @@ public class LoginActivity extends AppCompatActivity {
         passwordConfirmText = findViewById(R.id.confirm_password_text);
         errorPassword = findViewById(R.id.err_password);
         signup_link = findViewById(R.id.signup_link);
-        //
+        //create shared prefs vars
         editor = getSharedPreferences("ABC_key", MODE_PRIVATE).edit();
         prefs = getSharedPreferences("ABC_key", MODE_PRIVATE);
-
+        //create loading screen
+        dialog = new ProgressDialog(this);
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setIndeterminate(true);
+        dialog.setCanceledOnTouchOutside(false);
+        //for showing and hiding btns
         setSignInState(null);
 
-        checkKeepLoggedIn();
+        if(checkKeepLoggedIn())
+        {
+            checkbox_keep.setChecked(true);
+            StartLoginLoadingScreen();
+        }
+
+        connectToServer();
     }
 
-    private void checkKeepLoggedIn() {
-        //Check if logged in before and saved keepMeLoggedIn
-        boolean x = prefs.getBoolean("keep",false);
-        checkbox_keep.setChecked(x);
-        if(x)
-        {
-            Toast.makeText(getApplicationContext(), "Logging in", Toast.LENGTH_LONG).show();
-            usernameText.setText(prefs.getString("username",null));
-            passwordText.setText(prefs.getString("password",null));
-            BtnClick(null);
-        }
+    private void connectToServer(){
+        //start loading screen
+        new ConnectServer().execute();
+    }
+
+    private void autoLoginIn(){
+        String username = prefs.getString("username",null);
+        String IP = socket.getInetAddress().getHostAddress();
+        User.createMainUserObj(username, IP);
+        StartChatActivity();
+    }
+
+    private boolean checkKeepLoggedIn() {
+        //Check if logged in before (the saved "keepMeLoggedIn" in sharedPrefs)
+        if( prefs.getBoolean("keep",false) && prefs.getString("username",null)!=null )
+            return true;
+        else
+            return false;
     }
 
     public void setSignInState(View view){
         passwordConfirmText.setVisibility(View.GONE);
         fab_back.setVisibility(View.GONE);
+        errorPassword.setVisibility(View.GONE);
         signup_link.setVisibility(View.VISIBLE);
         checkbox_keep.setVisibility(View.VISIBLE);
-        signup_link.setEnabled(true);
-        usernameText.setEnabled(true);
-        passwordText.setEnabled(true);
         btn.setText("LOGIN");
-        btn.setEnabled(true);
-        checkbox_keep.setEnabled(true);
-        errorPassword.setVisibility(View.GONE);
         ActivityState = State.SIGN_IN;
+        StopLoginLoadingScreen();
     }
     public void setSignUpState(View view){
         passwordConfirmText.setVisibility(View.VISIBLE);
         fab_back.setVisibility(View.VISIBLE);
         signup_link.setVisibility(View.GONE);
         checkbox_keep.setVisibility(View.GONE);
-        usernameText.setEnabled(true);
-        passwordText.setEnabled(true);
-        passwordConfirmText.setEnabled(true);
         btn.setText("SIGN UP");
-        btn.setEnabled(true);
         ActivityState = State.SIGN_UP;
-    }
-
-    private void LoggingInState(){
-        btn.setEnabled(false);
-        usernameText.setEnabled(false);
-        passwordText.setEnabled(false);
-        passwordConfirmText.setEnabled(false);
-        checkbox_keep.setEnabled(false);
-        signup_link.setEnabled(false);
+        StopLoginLoadingScreen();
     }
 
     //Clicking button
     public void BtnClick(View view) {
         errorPassword.setVisibility(View.GONE);
-        LoggingInState();
+        StartLoginLoadingScreen();
         new ClientLogin().execute();//connect
     }
 
+    private void StartLoginLoadingScreen(){
+        dialog.setMessage("Logging in");
+        dialog.show();
+    }
+    private void StopLoginLoadingScreen(){
+        dialog.cancel();
+    }
+
+    public class ConnectServer extends AsyncTask<Integer, Void, Integer> {
+        //.execute() runs code below
+        @Override
+        protected Integer doInBackground(Integer... integers) {
+            try {
+                socket = new Socket(Network.instance.MainServerIP, Network.instance.MainServerPORT);
+                oos = new ObjectOutputStream(socket.getOutputStream());
+                ois = new ObjectInputStream(socket.getInputStream());
+                return 1;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return -1;
+            }
+        }
+
+        @Override //Connected to server
+        protected void onPostExecute(Integer result) {
+            if(result != 1) //Connect failed
+            {
+                //Show error box////////
+                AlertDialog.Builder builder;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    builder = new AlertDialog.Builder(LoginActivity.this, android.R.style.Theme_Material_Dialog_Alert);
+                } else {
+                    builder = new AlertDialog.Builder(LoginActivity.this);
+                }
+                builder.setTitle("Cannot connect to server")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setCancelable(false)
+                        .show();
+                /////////////////////////
+                return;
+            }
+
+            //Connect success
+            if(checkKeepLoggedIn())
+                autoLoginIn();
+        }
+    }
+
     public class ClientLogin extends AsyncTask<Integer, Void, Integer> {
-        private Socket socket;
 
         //.execute() runs code below
         @Override
@@ -131,72 +191,53 @@ public class LoginActivity extends AppCompatActivity {
                     !passwordText.getText().toString().equals(passwordConfirmText.getText().toString()))
                 return -4;
 
-            ObjectInputStream ois;
-            ObjectOutputStream oos;
-            Command command;
             try {
-                socket = new Socket(Network.MainServerIP, Network.MainServerPORT);
-                oos = new ObjectOutputStream(this.socket.getOutputStream());
-                ois = new ObjectInputStream(this.socket.getInputStream());
 
-                if(ActivityState == State.SIGN_IN){
-                    //send signIn command
-                    oos.writeObject(Command.signIn);
+                String  username = usernameText.getText().toString();
+                //encrypt password to be sent
+                String password = AdvancedCrypto.encrypt(passwordText.getText().toString());
+                String IP = socket.getInetAddress().getHostAddress();
 
-                    //wait for ack
-                    command = (Command) ois.readObject();
-                    if(command == Command.success)
-                    {//server ready to receive
+                switch (ActivityState) {
+                    case SIGN_IN:
 
-                        String  username = usernameText.getText().toString();
-                        String password = passwordText.getText().toString();
-                        String IP = socket.getInetAddress().getHostAddress();
+                        //send signIn command
+                        oos.writeObject(Command.signIn);
+                        oos.flush();
 
                         //send username and pass to server
                         oos.writeObject(new AuthUser(username,password,IP));
                         oos.flush();
 
                         command = (Command) ois.readObject();
-
                         //Success. Username found and pass correct
                         if(command == Command.success)
                         {
                             User.createMainUserObj(username, IP);
 
-                            //if keepMeLoggedIn, save user and pass to shared pref, along with bool for keepMeLoggedIn
+                            //if keepMeLoggedIn, save "keepMeLoggedIn" and "username" to shared pref
                             boolean x = checkbox_keep.isChecked();
                             editor.putBoolean("keep", x);
                             if(x)
                             {
                                 editor.putString("username", username);
-                                editor.putString("password", password);
                                 editor.apply();
                             }
                             return 1;
                         }
-                        //Fail. Username found but pass incorrect
+                        //Fail. Username does not exists, or found but incorrect pass
                         else if(command == Command.fail)
                         {
                             return -1;
                         }
-                    }
-                    //Username does not exists
-                    else if (command == Command.fail){//failed, enable login btn again
-                        return -1;
-                    }
-                }
-                else if(ActivityState == State.SIGN_UP){
 
-                    //Sign up
-                    //send command
-                    oos.writeObject(Command.signUp);
+                        break;
 
-                    //wait for ack
-                    command = (Command) ois.readObject();
-                    if(command == Command.success){
-                        String username = usernameText.getText().toString();
-                        String password = passwordText.getText().toString();
-                        String IP = socket.getInetAddress().getHostAddress();
+                    case SIGN_UP:
+
+                        //send signUp command
+                        oos.writeObject(Command.signUp);
+                        oos.flush();
 
                         //send username and pass
                         oos.writeObject(new AuthUser(username,password,IP));
@@ -206,7 +247,7 @@ public class LoginActivity extends AppCompatActivity {
                         //Username doesn't already exist, user created successfully
                         if(command == Command.success)
                         {
-                            User.createMainUserObj(username, password);
+                            User.createMainUserObj(username, IP);
                             return 1;
                         }
                         //Username already exists
@@ -214,11 +255,12 @@ public class LoginActivity extends AppCompatActivity {
                         {
                             return -3;
                         }
-                    }
+
+                        break;
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                return 0;
             }
             return 0;
         }
@@ -248,10 +290,12 @@ public class LoginActivity extends AppCompatActivity {
                     break;
             }
         }
-
-        private void StartChatActivity() {
-            startActivity(new Intent(getApplicationContext(), ChatActivity.class));
-            finish();
-        }
     }
+
+    private void StartChatActivity() {
+        startActivity(new Intent(getApplicationContext(), ChatActivity.class));
+        StopLoginLoadingScreen();
+        finish();
+    }
+
 }

@@ -22,6 +22,7 @@ public class StatusHandler extends AppCompatActivity {
         public void run() {
             //Set Status to idle
             User.mainUser.setIdleStatus();
+            //send "syncStatus" command to server along with username, and idle status
             //Toast.makeText(getApplicationContext(), "idle for 1 min", Toast.LENGTH_SHORT).show();
         }
     };

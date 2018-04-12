@@ -1,18 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.supreme.abc.supremechat_client.LoginActivity">
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:onClick="setSignInState"
+        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
 
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:gravity="center|top"
+        android:layout_marginTop="20dp">
 
         <EditText
             android:id="@+id/username_text"
@@ -22,7 +32,8 @@
             android:inputType="textPersonName"
             android:hint="Username"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="50dp"/>
+            android:layout_marginTop="50dp"
+            android:gravity="center"/>
 
         <EditText
             android:id="@+id/password_text"
@@ -30,38 +41,66 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Password"
+            android:layout_marginTop="20dp"
             android:inputType="textPassword"
-            android:layout_below="@id/username_text"
-            android:layout_centerHorizontal="true"/>
+            android:layout_centerHorizontal="true"
+            android:gravity="center"/>
+
+        <CheckBox android:id="@+id/checkbox_keep"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Keep me logged in"/>
+
+        <EditText
+            android:id="@+id/confirm_password_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:ems="10"
+            android:hint="Confirm Password"
+            android:inputType="textPassword"
+            android:layout_below="@id/password_text"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:visibility="gone"/>
 
         <TextView
-            android:id="@+id/signup_link"
-            android:text="Don't have an account?"
-            android:layout_below="@id/password_text"
-            android:textSize="15dp"
-            android:layout_marginTop="5dp"
-            android:textColor="@color/linkColor"
-            android:textStyle=""
-            android:paddingStart="80dp"
-            android:layout_width= "wrap_content"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/err_password"
+            android:layout_below="@+id/confirm_password_text"
             android:layout_centerHorizontal="true"
-            android:onClick="StartSignUpActivity"
+            android:text="Password mismatch"
+            android:visibility="gone"
+            android:textColor="@color/errorColor"
             />
 
         <Button
             android:id="@+id/login_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="20dp"
             android:text="login"
-            android:layout_below="@id/signup_link"
-            android:layout_centerHorizontal="true"
+            android:ems="10"
+            android:layout_gravity="center"
             android:onClick="BtnClick"
             />
 
+        <TextView
+            android:id="@+id/signup_link"
+            android:text="Don't have an account?"
+            android:textSize="15dp"
+            android:layout_marginTop="35dp"
+            android:textColor="@color/linkColor"
+            android:layout_width= "wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="setSignUpState"
+            android:layout_below="@id/login_button"
+            />
 
-    </RelativeLayout>
 
-</android.support.constraint.ConstraintLayout>
+    </LinearLayout>
+
+</FrameLayout>
 

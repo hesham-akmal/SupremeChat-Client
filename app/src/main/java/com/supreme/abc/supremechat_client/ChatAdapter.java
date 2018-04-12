@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import network_data.Friend;
+
 public class ChatAdapter extends ArrayAdapter<Friend> {
 
     public ChatAdapter(Context context, List<Friend> books )

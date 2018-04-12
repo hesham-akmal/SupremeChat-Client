@@ -9,24 +9,22 @@ public class User {
         Online
     }
     private String username;
-    private boolean isAdmin;
     private Status status;
     private String IP;
     private Hashtable<String, String> friendList;
 
     public static User mainUser;
     //This should be called when the server authenticates the login info (user and pass are ok)
-    public static void createMainUserObj(String username, boolean admin, String IP, Hashtable<String, String> friendList){
+    public static void createMainUserObj(String username, String IP){
         //Syncing server user with "mainUser" object.
-        mainUser = new User(username, admin, IP, friendList);
+        mainUser = new User(username, IP);
     }
 
-    private User(String username, boolean isAdmin, String IP, Hashtable<String, String> friendList ) {
+    private User(String username, String IP) {
         this.username = username;
-        this.isAdmin = isAdmin;
         this.status = Status.Online;
         this.IP = IP;
-        this.friendList = friendList;
+        //this.friendList = ;
     }
 
     private void updateStatusAndSync(Status status) {
@@ -44,11 +42,11 @@ public class User {
 
     public void addFriend(String username, String IP){
         friendList.put(username,IP);
-        syncServer();
+        //syncServer();
     }
 
     private void syncServer() {
-        //send status,IP,friendlist for "username" to server
+        //send status,IP for "username" to server
 
     }
 

@@ -235,8 +235,9 @@ public class LoginActivity extends AppCompatActivity {
                     setSignUpState(null);
                     break;
                 case -4:
-                    errorPassword.setVisibility(View.VISIBLE);
-                    setSignUpState(null);
+                    //errorPassword.setVisibility(View.VISIBLE);
+                    Toast.makeText(getApplicationContext(), "Can't connect to server", Toast.LENGTH_LONG).show();
+                    //setSignUpState(null);
                     break;
                 case 0:
                     Toast.makeText(getApplicationContext(), "Unknown error has occured. Please try again.", Toast.LENGTH_LONG).show();
@@ -247,7 +248,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void StartChatActivity() {
-        startActivity(new Intent(getApplicationContext(), ChatActivity.class));
+        startActivity(new Intent(getApplicationContext(), ChatListActivity.class));
         StopLoginLoadingScreen();
         finish();
     }

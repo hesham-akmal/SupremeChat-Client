@@ -1,27 +1,19 @@
 package com.supreme.abc.supremechat_client;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.StrictMode;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 
 import network_data.AuthUser;
 import network_data.Command;
@@ -35,10 +27,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private SharedPreferences prefs ;
     private SharedPreferences.Editor editor;
-
-    private Socket socket;
-    private ObjectInputStream ois;
-    private ObjectOutputStream oos;
     private Command command;
 
     ProgressDialog dialog;
@@ -82,17 +70,17 @@ public class LoginActivity extends AppCompatActivity {
             StartLoginLoadingScreen();
         }
 
-        connectToServer();
-    }
+        //Must write in every activity
+        Network.instance.SetAlertDialogContext(LoginActivity.this);
 
-    private void connectToServer(){
-        //start loading screen
-        new ConnectServer().execute();
+        if( Network.instance.Start() )
+            if(checkKeepLoggedIn())
+                autoLoginIn();
     }
 
     private void autoLoginIn(){
         String username = prefs.getString("username",null);
-        String IP = socket.getInetAddress().getHostAddress();
+        String IP = Network.instance.socket.getInetAddress().getHostAddress();
         User.createMainUserObj(username, IP);
         StartChatActivity();
     }
@@ -129,7 +117,8 @@ public class LoginActivity extends AppCompatActivity {
     public void BtnClick(View view) {
         errorPassword.setVisibility(View.GONE);
         StartLoginLoadingScreen();
-        new ClientLogin().execute();//connect
+        //new ClientLogin().execute();//connect
+        new ClientLogin().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
     }
 
     private void StartLoginLoadingScreen(){
@@ -138,46 +127,6 @@ public class LoginActivity extends AppCompatActivity {
     }
     private void StopLoginLoadingScreen(){
         dialog.cancel();
-    }
-
-    public class ConnectServer extends AsyncTask<Integer, Void, Integer> {
-        //.execute() runs code below
-        @Override
-        protected Integer doInBackground(Integer... integers) {
-            try {
-                socket = new Socket(Network.instance.MainServerIP, Network.instance.MainServerPORT);
-                oos = new ObjectOutputStream(socket.getOutputStream());
-                ois = new ObjectInputStream(socket.getInputStream());
-                return 1;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return -1;
-            }
-        }
-
-        @Override //Connected to server
-        protected void onPostExecute(Integer result) {
-            if(result != 1) //Connect failed
-            {
-                //Show error box////////
-                AlertDialog.Builder builder;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    builder = new AlertDialog.Builder(LoginActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-                } else {
-                    builder = new AlertDialog.Builder(LoginActivity.this);
-                }
-                builder.setTitle("Cannot connect to server")
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setCancelable(false)
-                        .show();
-                /////////////////////////
-                return;
-            }
-
-            //Connect success
-            if(checkKeepLoggedIn())
-                autoLoginIn();
-        }
     }
 
     public class ClientLogin extends AsyncTask<Integer, Void, Integer> {
@@ -196,20 +145,23 @@ public class LoginActivity extends AppCompatActivity {
                 String  username = usernameText.getText().toString();
                 //encrypt password to be sent
                 String password = AdvancedCrypto.encrypt(passwordText.getText().toString());
-                String IP = socket.getInetAddress().getHostAddress();
+                String IP = Network.instance.socket.getInetAddress().getHostAddress();
+
+                //Stop sending heartbeats for now
+                Network.instance.sendHearbeats = false;
 
                 switch (ActivityState) {
                     case SIGN_IN:
 
                         //send signIn command
-                        oos.writeObject(Command.signIn);
-                        oos.flush();
+                        Network.instance.oos.writeObject(Command.signIn);
+                        Network.instance.oos.flush();
 
                         //send username and pass to server
-                        oos.writeObject(new AuthUser(username,password,IP));
-                        oos.flush();
+                        Network.instance.oos.writeObject(new AuthUser(username,password,IP));
+                        Network.instance.oos.flush();
 
-                        command = (Command) ois.readObject();
+                        command = (Command) Network.instance.ois.readObject();
                         //Success. Username found and pass correct
                         if(command == Command.success)
                         {
@@ -236,14 +188,14 @@ public class LoginActivity extends AppCompatActivity {
                     case SIGN_UP:
 
                         //send signUp command
-                        oos.writeObject(Command.signUp);
-                        oos.flush();
+                        Network.instance.oos.writeObject(Command.signUp);
+                        Network.instance.oos.flush();
 
                         //send username and pass
-                        oos.writeObject(new AuthUser(username,password,IP));
-                        oos.flush();
+                        Network.instance.oos.writeObject(new AuthUser(username,password,IP));
+                        Network.instance.oos.flush();
 
-                        command = (Command) ois.readObject();
+                        command = (Command) Network.instance.ois.readObject();
                         //Username doesn't already exist, user created successfully
                         if(command == Command.success)
                         {
@@ -267,6 +219,8 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Integer result) {
+
+            Network.instance.sendHearbeats = true;
 
             switch (result) {
                 case 1:

@@ -32,6 +32,9 @@ public class ChatActivity extends StatusHandler {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        //Must write in every activity
+        Network.instance.SetAlertDialogContext(ChatActivity.this);
+
         editor = getSharedPreferences("ABC_key", MODE_PRIVATE).edit();
         prefs = getSharedPreferences("ABC_key", MODE_PRIVATE);
 
@@ -75,9 +78,6 @@ public class ChatActivity extends StatusHandler {
         chatAdapter = new ChatAdapter(this, tempUser);
 
         chatListView.setAdapter(chatAdapter);
-
-        //start LastLogin Timer
-        //LastLoginTimerHandler.postDelayed(LastLoginRunnable, 0);
     }
 
     private void LogOut(){

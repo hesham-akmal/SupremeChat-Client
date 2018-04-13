@@ -1,21 +1,23 @@
-package com.supreme.abc.supremechat_client;
+package network_data;
 
-public class Friend {
-    enum Status {
+import java.io.Serializable;
+
+public class Friend implements Serializable {
+    private static final long serialVersionUID = 6519685098267757690L;
+
+    public enum Status {
         Offline,
         Idle,
         Online
     }
 
     private String username;
-    private boolean isAdmin;
     private Status status;
     private String lastLogin;
     private String IP;
 
-    public Friend(String username, boolean isAdmin, Status status, String lastLogin, String IP) {
+    public Friend(String username, Status status, String lastLogin, String IP) {
         this.username = username;
-        this.isAdmin = isAdmin;
         this.status = status;
         this.lastLogin = lastLogin;
         this.IP = IP;
@@ -35,5 +37,17 @@ public class Friend {
 
     public String getIP() {
         return IP;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public void setLastLogin(String lastLogin) {
+        this.lastLogin = lastLogin;
+    }
+
+    public void setIP(String IP) {
+        this.IP = IP;
     }
 }

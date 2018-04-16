@@ -13,11 +13,11 @@ import java.util.List;
 
 import network_data.Friend;
 
-public class ChatAdapter extends ArrayAdapter<Friend> {
+public class ChatListAdapter extends ArrayAdapter<Friend> {
 
-    public ChatAdapter(Context context, List<Friend> books )
+    public ChatListAdapter(Context context, List<Friend> friends )
     {
-        super(context, 0, books);
+        super(context, 0, friends);
     }
 
     @NonNull

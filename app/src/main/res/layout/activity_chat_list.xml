@@ -11,10 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <SearchView
-            android:id="@+id/search"
-            android:layout_width="match_parent"
-            android:layout_height="40dp" />
 
         <ListView
             android:id="@+id/list"
@@ -24,6 +20,7 @@
             android:divider="@null"
             android:dividerHeight="0dp"
             android:orientation="vertical" />
+
 
 
     </RelativeLayout>
@@ -36,7 +33,7 @@
         app:itemBackground="@color/colorPrimary"
         app:itemIconTint="@drawable/selector_bottom_bar_item"
         app:itemTextColor="@drawable/selector_bottom_bar_item"
-        app:menu="@menu/bottom_bar_menu"/>
+        app:menu="@menu/bottom_bar_menu" />
 
 </android.support.design.widget.CoordinatorLayout>
 

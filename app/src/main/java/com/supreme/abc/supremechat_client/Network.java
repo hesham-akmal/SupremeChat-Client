@@ -1,9 +1,9 @@
 package com.supreme.abc.supremechat_client;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -16,8 +16,9 @@ public class Network {
 
     public static Network instance = new Network();
 
-    public String MainServerIP = "supremechatserver1.ddns.net"; //Hesham
-    //public static String MainServerIP = "156.204.153.16"; //Grey&Ahmed
+//    public String MainServerIP = "supremechatserver1.ddns.net"; //Hesham
+    public static String MainServerIP = "156.205.80.152" +
+        ""; //Grey&Ahmed
     public int MainServerPORT = 3000;
 
     public Socket socket;
@@ -29,10 +30,13 @@ public class Network {
     public boolean sendHearbeats = true;
 
     public void SetAlertDialogContext(Context context) {
-        builder = new AlertDialog.Builder(context).create();
-        builder.setTitle("Cannot connect to server");
-        builder.setIcon(android.R.drawable.ic_dialog_alert);
-        builder.setCancelable(false);
+//        builder = new AlertDialog.Builder(context).create();
+//        builder.setTitle("Cannot connect to server");
+//        builder.setIcon(android.R.drawable.ic_dialog_alert);
+//        builder.setCancelable(true);
+
+        Toast.makeText(context, "Can't connect to server.", Toast.LENGTH_LONG).show();
+
     }
 
     public boolean Start() {
@@ -47,6 +51,7 @@ public class Network {
             return true;
         } catch (Exception e)
         {
+            e.printStackTrace();
             return false;
         }
         finally{
@@ -61,7 +66,7 @@ public class Network {
             {
                 try {
                     if(!sendHearbeats){
-                        Thread.sleep(1000);//1 sec
+                        Thread.sleep(500);//1 sec
                         continue;
                     }
 
@@ -86,11 +91,11 @@ public class Network {
             }
         }
 
-        @Override
-        protected void onPostExecute(Integer result) {
-            if(result == -1)
-                if(!builder.isShowing())
-                    builder.show();
-        }
+//        @Override
+//        protected void onPostExecute(Integer result) {
+//            if(result == -1)
+//                if(!builder.isShowing())
+//                    builder.show();
+//        }
     }
 }

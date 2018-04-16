@@ -16,9 +16,8 @@ public class Network {
 
     public static Network instance = new Network();
 
-//    public String MainServerIP = "supremechatserver1.ddns.net"; //Hesham
-    public static String MainServerIP = "156.205.80.152" +
-        ""; //Grey&Ahmed
+    //    public String MainServerIP = "supremechatserver1.ddns.net"; //Hesham
+    public static String MainServerIP = "supremechat.ddns.net";
     public int MainServerPORT = 3000;
 
     public Socket socket;
@@ -49,12 +48,10 @@ public class Network {
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());
             return true;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
-        }
-        finally{
+        } finally {
             new startCheckingConnection().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
         }
     }
@@ -62,10 +59,9 @@ public class Network {
     public class startCheckingConnection extends AsyncTask<Integer, Void, Integer> {
         @Override
         protected Integer doInBackground(Integer... integers) {
-            while(true)
-            {
+            while (true) {
                 try {
-                    if(!sendHearbeats){
+                    if (!sendHearbeats) {
                         Thread.sleep(500);//1 sec
                         continue;
                     }
@@ -73,9 +69,8 @@ public class Network {
                     oos.writeObject(Command.heartbeat);
                     oos.flush();
 
-                    if( Network.instance.ois.readObject() == Command.heartbeat )
-                    {
-                        if(builder!=null)
+                    if (Network.instance.ois.readObject() == Command.heartbeat) {
+                        if (builder != null)
                             builder.dismiss();
                     }
                 } catch (Exception e) { //Not connected

@@ -104,6 +104,7 @@ public class ChatListActivity extends StatusHandler {
 
                 Friend ttt = chatListAdapter.getItem(position);
 
+
                 startActivity(new Intent(getApplicationContext(), ChatActivity.class).putExtra("name", ttt.getUsername()));
 
             }

@@ -9,6 +9,8 @@ import android.support.annotation.NonNull;
 
 import android.support.design.widget.BottomNavigationView;
 
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,6 +20,7 @@ import android.widget.ImageView;
 
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 
 import java.io.IOException;
@@ -27,7 +30,7 @@ import java.util.List;
 import network_data.Command;
 import network_data.Friend;
 
-public class ChatListActivity extends StatusHandler {
+public class ChatListActivity extends AppCompatActivity {
 
     ImageView senderPic;
     public static String query;
@@ -51,6 +54,7 @@ public class ChatListActivity extends StatusHandler {
 
         //Must write in every activity
         //Network.instance.SetAlertDialogContext(ChatListActivity.this);
+        Network.instance.StartHeartbeatService();
 
         editor = getSharedPreferences("ABC_key", MODE_PRIVATE).edit();
         prefs = getSharedPreferences("ABC_key", MODE_PRIVATE);
@@ -151,6 +155,7 @@ public class ChatListActivity extends StatusHandler {
         editor.putBoolean("keep", false);
         editor.putString("username", null);
         editor.apply();
+        Network.instance.StopHeartbeatService();
         startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         finish();
     }
@@ -170,48 +175,39 @@ public class ChatListActivity extends StatusHandler {
 
             Friend friend = null;
             try {
-                Network.instance.sendHearbeats = false;
+                Network.instance.StopHeartbeatService();
 
                 Network.instance.oos.writeObject(Command.search);
                 Network.instance.oos.flush();
 
+                if( Network.instance.ois.readObject() != Command.success )
+                    return null;
+
                 Network.instance.oos.writeObject(ChatListActivity.query);
                 Network.instance.oos.flush();
 
-
-                try {
-                    Command command = (Command) Network.instance.ois.readObject();
-
-                    if (command == Command.heartbeat) {
-                        command = (Command) Network.instance.ois.readObject();
-                    }
-                    //Success. Username found and pass correct
-                    if (command == Command.success) {
-                        friend = (Friend) Network.instance.ois.readObject();
-                        System.out.println(friend);
-                    }
-
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+                //Success. Username found and pass correct
+                if ( Network.instance.ois.readObject() == Command.success) {
+                    friend = (Friend) Network.instance.ois.readObject();
                 }
-
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
-
             return friend;
         }
 
         @Override
         protected void onPostExecute(Friend friend) {
-            Network.instance.sendHearbeats = true;
 
             if (friend != null) {
                 chatListAdapter.add(new Friend(friend.getUsername(), friend.getStatus(), friend.getLastLogin(), friend.getIP()));
                 User.mainUser.addFriend(friend.getUsername(), friend.getIP());
+                Toast.makeText(getApplicationContext(), "Friend Added!", Toast.LENGTH_LONG).show();
                 chatListView.setAdapter(chatListAdapter);
             }
+
+            //Network.instance.StartHeartbeatService();
+
         }
     }
-
 }

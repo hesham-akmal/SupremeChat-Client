@@ -150,9 +150,6 @@ public class LoginActivity extends AppCompatActivity {
                 String password = AdvancedCrypto.encrypt(passwordText.getText().toString());
                 String IP = Network.instance.socket.getInetAddress().getHostAddress();
 
-                //Stop sending heartbeats for now
-                Network.instance.sendHearbeats = false;
-
                 switch (ActivityState) {
                     case SIGN_IN:
 
@@ -222,8 +219,6 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Integer result) {
-
-            Network.instance.sendHearbeats = true;
 
             switch (result) {
                 case 1:

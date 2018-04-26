@@ -56,9 +56,6 @@ public class ChatActivity extends AppCompatActivity {
 
         chatBox = (EditText) findViewById(R.id.edittext_chatbox);
 
-
-//        messageAdapter = new MessageListAdapter(this, messageList);
-//        messageListView.setAdapter(messageAdapter);
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

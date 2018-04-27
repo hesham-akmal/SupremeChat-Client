@@ -22,8 +22,6 @@ public class Network {
     public ObjectOutputStream oos;
     public ObjectInputStream ois;
 
-    public RUDPClient rudpClient;
-
     public  boolean sendHeartbeats;
     //private AlertDialog builder;
     private Runnable HeartbeatHandlerRunnable;
@@ -41,8 +39,6 @@ public class Network {
             socket = new Socket(MainServerIP, MainServerPORT);
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());
-
-            rudpClient = new RUDPClient();
 
             sendHeartbeats = true;
 

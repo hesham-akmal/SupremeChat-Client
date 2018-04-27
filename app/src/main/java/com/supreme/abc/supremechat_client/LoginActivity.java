@@ -82,13 +82,10 @@ public class LoginActivity extends AppCompatActivity {
         dialog.setIndeterminate(true);
         dialog.setCanceledOnTouchOutside(false);
         //for showing and hiding btns
-        setSignInState(null);
+        SetSignInState(null);
 
         if(checkLoggedIn())
             StartLoginLoadingScreen();
-
-        //Must write in every activity
-        //Network.instance.SetAlertDialogContext(LoginActivity.this);
 
         if( Network.instance.Start() )
             if(checkLoggedIn())
@@ -97,12 +94,11 @@ public class LoginActivity extends AppCompatActivity {
     private void autoLoginIn(){
         try {
             String username = prefs.getString("username",null);
-            String IP = Network.instance.socket.getInetAddress().getHostAddress();
             Network.instance.oos.writeObject(Command.signInAuto);
             Network.instance.oos.flush();
-            Network.instance.oos.writeObject(new AuthUser(username,null,IP));
+            Network.instance.oos.writeObject(new AuthUser(username,null));
             Network.instance.oos.flush();
-            User.mainUser.Create(username, IP);
+            User.mainUser.Create(username);
             StartChatActivity();
         } catch (Exception e) {
             e.printStackTrace();
@@ -114,7 +110,7 @@ public class LoginActivity extends AppCompatActivity {
         return ( prefs.getBoolean("checkLoggedIn",false) && prefs.getString("username",null)!=null );
     }
 
-    public void setSignInState(View view){
+    public void SetSignInState(View view){
         passwordConfirmText.setVisibility(View.GONE);
         fab_back.setVisibility(View.GONE);
         errorPassword.setVisibility(View.GONE);
@@ -163,7 +159,6 @@ public class LoginActivity extends AppCompatActivity {
                 String  username = usernameText.getText().toString();
                 //encrypt password to be sent
                 String password = AdvancedCrypto.encrypt(passwordText.getText().toString());
-                String IP = Network.instance.socket.getInetAddress().getHostAddress();
 
                 switch (ActivityState) {
                     case SIGN_IN:
@@ -173,14 +168,14 @@ public class LoginActivity extends AppCompatActivity {
                         Network.instance.oos.flush();
 
                         //send username and pass to server
-                        Network.instance.oos.writeObject(new AuthUser(username,password,IP));
+                        Network.instance.oos.writeObject(new AuthUser(username,password));
                         Network.instance.oos.flush();
 
                         command = (Command) Network.instance.ois.readObject();
                         //Success. Username found and pass correct
                         if(command == Command.success)
                         {
-                            User.mainUser.Create(username, IP);
+                            User.mainUser.Create(username);
 
                             editor.putBoolean("checkLoggedIn", true);
                             editor.putString("username", username);
@@ -203,14 +198,14 @@ public class LoginActivity extends AppCompatActivity {
                         Network.instance.oos.flush();
 
                         //send username and pass
-                        Network.instance.oos.writeObject(new AuthUser(username,password,IP));
+                        Network.instance.oos.writeObject(new AuthUser(username,password));
                         Network.instance.oos.flush();
 
                         command = (Command) Network.instance.ois.readObject();
                         //Username doesn't already exist, user created successfully
                         if(command == Command.success)
                         {
-                            User.mainUser.Create(username, IP);
+                            User.mainUser.Create(username);
                             return 1;
                         }
                         //Username already exists
@@ -237,7 +232,7 @@ public class LoginActivity extends AppCompatActivity {
                     break;
                 case -1:
                     Toast.makeText(getApplicationContext(), "Username or Password incorrect.", Toast.LENGTH_LONG).show();
-                    setSignInState(null);
+                    SetSignInState(null);
                     break;
                 case -3:
                     Toast.makeText(getApplicationContext(), "Username already exists.", Toast.LENGTH_LONG).show();
@@ -250,7 +245,7 @@ public class LoginActivity extends AppCompatActivity {
                     break;
                 case 0:
                     Toast.makeText(getApplicationContext(), "Unknown error has occured. Please try again.", Toast.LENGTH_LONG).show();
-                    setSignInState(null);
+                    SetSignInState(null);
                     break;
             }
         }

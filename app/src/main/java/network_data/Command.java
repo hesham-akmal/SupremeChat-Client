@@ -5,7 +5,6 @@ public enum Command
     signIn,
     signInAuto,
     signUp,
-    syncIP,
     success,
     fail,
     heartbeat,

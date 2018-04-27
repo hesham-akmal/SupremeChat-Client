@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.supreme.abc.supremechat_client.Networking.Network;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -43,9 +44,6 @@ public class ChatActivity extends AppCompatActivity {
     Button sendBtn;
     static Context c;
     SharedPreferences prefs;
-    SharedPreferences.Editor editor;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,19 +85,15 @@ public class ChatActivity extends AppCompatActivity {
 
         chatBox = (EditText) findViewById(R.id.edittext_chatbox);
 
-        sendBtn.setOnClickListener(new View.OnClickListener()
-
-        {
-            @Override
-            public void onClick(View v) {
-                if (chatBox.getText() != null) {
-                    //new FriendConnection();
-                    messageList.add(new Message(chatBox.getText().toString(), User.mainUser));
-                    messageAdapter = new MessageListAdapter(c, messageList);
-                    messageRecycler.setLayoutManager(new LinearLayoutManager(c));
-                    messageRecycler.setAdapter(messageAdapter);
-                    chatBox.setText("");
-                }
+        sendBtn.setOnClickListener(v -> {
+            if (chatBox.getText() != null) {
+                //new FriendConnection();
+                //SendMsg(friend.getIP(),chatBox.getText().toString());
+                messageList.add(new Message(chatBox.getText().toString(), User.mainUser));
+                messageAdapter = new MessageListAdapter(c, messageList);
+                messageRecycler.setLayoutManager(new LinearLayoutManager(c));
+                messageRecycler.setAdapter(messageAdapter);
+                chatBox.setText("");
             }
         });
     }
@@ -107,22 +101,12 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-
         SharedPreferences appSharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(this.getApplicationContext());
         SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
         Gson gson = new Gson();
         String json = gson.toJson(messageList);
         prefsEditor.putString(friend.getUsername(), json);
-        prefsEditor.commit();
-
-
+        prefsEditor.apply();
     }
-
-
 }
-
-
-
-
-

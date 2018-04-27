@@ -25,13 +25,15 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 
+import com.supreme.abc.supremechat_client.Networking.AsyncTasks;
 import com.supreme.abc.supremechat_client.Networking.Network;
-import com.supreme.abc.supremechat_client.Networking.SyncFriendsIPs;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import network_data.Command;
 import network_data.Friend;
@@ -58,12 +60,13 @@ public class ChatListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_list);
 
-        //Must write in every activity
-        //Network.instance.SetAlertDialogContext(ChatListActivity.this);
-        Network.instance.StartHeartbeatService();
+        ///SETUP///////////////////////////////////////
+        //Sync Friends IPs from server
+        AsyncTasks.SyncFriendsIPs();
+        new UpdateFriendListGUI().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-        //Sync Friends IPs
-        new SyncFriendsIPs().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        Network.instance.StartHeartbeatService();
+        ////////////////////////////////////////////////
 
         editor = getSharedPreferences("ABC_key", MODE_PRIVATE).edit();
         prefs = getSharedPreferences("ABC_key", MODE_PRIVATE);
@@ -72,22 +75,19 @@ public class ChatListActivity extends AppCompatActivity {
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_nav);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(
-                new BottomNavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.bottom_bar_item_calls:
-                                // TODO
-                                return true;
-                            case R.id.bottom_bar_item_recents:
-                                // TODO
-                                return true;
-                            case R.id.bottom_bar_item_trips:
-                                LogOut();
-                                return true;
-                        }
-                        return false;
+                item -> {
+                    switch (item.getItemId()) {
+                        case R.id.bottom_bar_item_calls:
+                            // TODO
+                            return true;
+                        case R.id.bottom_bar_item_recents:
+                            // TODO
+                            return true;
+                        case R.id.bottom_bar_item_trips:
+                            LogOut();
+                            return true;
                     }
+                    return false;
                 }
         );
 
@@ -136,7 +136,13 @@ public class ChatListActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 ChatListActivity.query = query;
-                //Please avoid calling "execute()" alone, as in lower versions of Android all
+
+                if(User.mainUser.checkFriendExist(query)){
+                    Toast.makeText(getApplicationContext(), "Friend already added!", Toast.LENGTH_LONG).show();
+                    return false;
+                }
+
+                //Avoid calling "execute()" alone, as in lower versions of Android all
                 // AsyncTasks were executed at single background thread. So new tasks might be waiting,
                 // until other task working.
                 new PerformSearch().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -156,6 +162,7 @@ public class ChatListActivity extends AppCompatActivity {
         editor.putBoolean("keep", false);
         editor.putString("username", null);
         editor.apply();
+        tempUser.clear();//reset
         Network.instance.StopHeartbeatService();
         startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         finish();
@@ -169,11 +176,10 @@ public class ChatListActivity extends AppCompatActivity {
 //        startActivity(new Intent(getApplicationContext(), ChatActivity.class).putExtra("name", cc.getText()));
 //    }
 
+    //Search and add friend if found
     public class PerformSearch extends AsyncTask<String, Void, Friend> {
         @Override
         protected Friend doInBackground(String... s) {
-
-            Network.instance.StopHeartbeatService();
 
             Friend friend = null;
             try {
@@ -198,13 +204,11 @@ public class ChatListActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Friend friend) {
 
-            Network.instance.StartHeartbeatService();
-
             if (friend != null) {
-                Friend f = new Friend(friend.getUsername(), friend.getStatus(), friend.getLastLogin(), friend.getIP());
-                tempUser.add(f);
+                //Friend f = new Friend(friend.getUsername(), friend.getStatus(), friend.getLastLogin(), friend.getIP());
+                tempUser.add(friend);
                 //chatListAdapter.add(f);
-                User.mainUser.AddFriend(friend.getUsername(), friend.getIP());
+                User.mainUser.AddFriend(friend.getUsername(), friend);
                 Toast.makeText(getApplicationContext(), "Friend Added!", Toast.LENGTH_LONG).show();
                 chatListView.setAdapter(chatListAdapter);
             }
@@ -212,7 +216,21 @@ public class ChatListActivity extends AppCompatActivity {
             {
                 Toast.makeText(getApplicationContext(), "User doesn't exist!", Toast.LENGTH_SHORT).show();
             }
+        }
+    }
 
+    public class UpdateFriendListGUI extends AsyncTask<String, Void, Integer> {
+        @Override
+        protected Integer doInBackground(String... s) {
+            for(Map.Entry<String, Friend> entry : Database.instance.LoadFriendList().entrySet()) {
+                tempUser.add(entry.getValue());
+            }
+            return 1;
+        }
+
+        @Override
+        protected void onPostExecute(Integer i) {
+            chatListView.setAdapter(chatListAdapter);
         }
     }
 }

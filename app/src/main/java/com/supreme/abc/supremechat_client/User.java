@@ -2,30 +2,31 @@ package com.supreme.abc.supremechat_client;
 
 import java.util.Hashtable;
 
+import network_data.Friend;
+
 public class User {
     public static User mainUser = new User();
 
     private String username;
-    private String IP;
-    private Hashtable<String, String> friendList;
+    private Hashtable<String, Friend> friendList;
 
     //This should be called when the server authenticates the login info (user and pass are ok)
-    public void Create(String username, String IP){
+    public void Create(String username){
         //Syncing server user with "mainUser" object.
         this.username = username;
-        this.IP = IP;
-        //Check if there's a friend list in shared prefs first,Implement later
-        friendList = new Hashtable<>();
+        friendList = Database.instance.LoadFriendList();
     }
 
-    public void AddFriend(String username, String IP){
-        friendList.put(username,IP);
+    public void AddFriend(String username, Friend f){
+        friendList.put(username,f);
+        SaveFriendsDB();
     }
 
-    public Hashtable<String, String> getFriendList() {
+    public Hashtable<String, Friend> getFriendList() {
         return friendList;
     }
-    public void setFriendList(Hashtable<String, String> friendList) {
+
+    public void setFriendList(Hashtable<String, Friend> friendList) {
         this.friendList = friendList;
     }
 
@@ -33,9 +34,14 @@ public class User {
         return this.username;
     }
 
-    private void syncServer() {
-        //send IP for "username" to server
+    private void SaveFriendsDB(){
+        Database.instance.SaveFriendList(friendList);
     }
+
+    public boolean checkFriendExist(String name){
+        return getFriendList().containsKey(name);
+    }
+
 }
 
 

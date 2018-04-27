@@ -11,7 +11,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,8 +24,12 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 
+import com.supreme.abc.supremechat_client.Networking.Network;
+import com.supreme.abc.supremechat_client.Networking.SyncFriendsIPs;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
 import network_data.Command;
@@ -58,9 +61,11 @@ public class ChatListActivity extends AppCompatActivity {
         //Network.instance.SetAlertDialogContext(ChatListActivity.this);
         Network.instance.StartHeartbeatService();
 
+        //Sync Friends IPs
+        new SyncFriendsIPs().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
         editor = getSharedPreferences("ABC_key", MODE_PRIVATE).edit();
         prefs = getSharedPreferences("ABC_key", MODE_PRIVATE);
-
 
         setTitle(getIntent().getStringExtra("username"));
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_nav);
@@ -164,7 +169,7 @@ public class ChatListActivity extends AppCompatActivity {
 
     public void searchBarClicked(MenuItem item) {
         //opens up keyboard
-        InputMethodManager imm = (InputMethodManager)   getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
@@ -192,7 +197,7 @@ public class ChatListActivity extends AppCompatActivity {
                 Network.instance.oos.flush();
 
                 //Success. Username found and pass correct
-                if ( Network.instance.ois.readObject() == Command.success) {
+                if (Network.instance.ois.readObject() == Command.success) {
                     friend = (Friend) Network.instance.ois.readObject();
                 }
 
@@ -209,15 +214,18 @@ public class ChatListActivity extends AppCompatActivity {
 
             if (friend != null) {
                 chatListAdapter.add(new Friend(friend.getUsername(), friend.getStatus(), friend.getLastLogin(), friend.getIP()));
-                User.mainUser.addFriend(friend.getUsername(), friend.getIP());
+                User.mainUser.AddFriend(friend.getUsername(), friend.getIP());
                 Toast.makeText(getApplicationContext(), "Friend Added!", Toast.LENGTH_LONG).show();
                 chatListView.setAdapter(chatListAdapter);
-            }
-            else
-            {
+            } else {
                 Toast.makeText(getApplicationContext(), "User doesn't exist!", Toast.LENGTH_SHORT).show();
             }
 
         }
+
+
+
+
     }
+
 }

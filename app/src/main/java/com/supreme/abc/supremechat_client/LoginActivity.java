@@ -9,17 +9,14 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
+import com.supreme.abc.supremechat_client.Networking.Network;
 
 import network_data.AuthUser;
 import network_data.Command;
@@ -91,14 +88,12 @@ public class LoginActivity extends AppCompatActivity {
             StartLoginLoadingScreen();
 
         //Must write in every activity
-        Network.instance.SetAlertDialogContext(LoginActivity.this);
+        //Network.instance.SetAlertDialogContext(LoginActivity.this);
 
         if( Network.instance.Start() )
             if(checkLoggedIn())
                 autoLoginIn();
     }
-
-
     private void autoLoginIn(){
         try {
             String username = prefs.getString("username",null);
@@ -107,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
             Network.instance.oos.flush();
             Network.instance.oos.writeObject(new AuthUser(username,null,IP));
             Network.instance.oos.flush();
-            User.createMainUserObj(username, IP);
+            User.mainUser.Create(username, IP);
             StartChatActivity();
         } catch (Exception e) {
             e.printStackTrace();
@@ -185,7 +180,7 @@ public class LoginActivity extends AppCompatActivity {
                         //Success. Username found and pass correct
                         if(command == Command.success)
                         {
-                            User.createMainUserObj(username, IP);
+                            User.mainUser.Create(username, IP);
 
                             editor.putBoolean("checkLoggedIn", true);
                             editor.putString("username", username);
@@ -215,7 +210,7 @@ public class LoginActivity extends AppCompatActivity {
                         //Username doesn't already exist, user created successfully
                         if(command == Command.success)
                         {
-                            User.createMainUserObj(username, IP);
+                            User.mainUser.Create(username, IP);
                             return 1;
                         }
                         //Username already exists

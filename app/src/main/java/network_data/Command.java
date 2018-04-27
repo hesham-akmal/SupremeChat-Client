@@ -9,5 +9,6 @@ public enum Command
     success,
     fail,
     heartbeat,
-    search
+    search,
+    sendFriends
 }

@@ -1,9 +1,8 @@
-package com.supreme.abc.supremechat_client;
+package com.supreme.abc.supremechat_client.Networking;
 
-import android.app.AlertDialog;
-import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
+
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -23,23 +22,27 @@ public class Network {
     public ObjectOutputStream oos;
     public ObjectInputStream ois;
 
+    public RUDPClient rudpClient;
+
     public  boolean sendHeartbeats;
-    private AlertDialog builder;
+    //private AlertDialog builder;
     private Runnable HeartbeatHandlerRunnable;
     private Handler HeartbeatTimerHandler;
 
-    public void SetAlertDialogContext(Context context) {
+    /*public void SetAlertDialogContext(Context context) {
         builder = new AlertDialog.Builder(context).create();
         builder.setTitle("Cannot connect to server");
         builder.setIcon(android.R.drawable.ic_dialog_alert);
         builder.setCancelable(false);
-    }
+    }*/
 
     public boolean Start() {
         try {
             socket = new Socket(MainServerIP, MainServerPORT);
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());
+
+            rudpClient = new RUDPClient();
 
             sendHeartbeats = true;
 

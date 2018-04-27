@@ -1,5 +1,6 @@
 package com.supreme.abc.supremechat_client;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -9,15 +10,19 @@ import android.support.annotation.NonNull;
 
 import android.support.design.widget.BottomNavigationView;
 
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 
 import java.io.IOException;
@@ -27,7 +32,7 @@ import java.util.List;
 import network_data.Command;
 import network_data.Friend;
 
-public class ChatListActivity extends StatusHandler {
+public class ChatListActivity extends AppCompatActivity {
 
     ImageView senderPic;
     public static String query;
@@ -51,6 +56,7 @@ public class ChatListActivity extends StatusHandler {
 
         //Must write in every activity
         //Network.instance.SetAlertDialogContext(ChatListActivity.this);
+        Network.instance.StartHeartbeatService();
 
         editor = getSharedPreferences("ABC_key", MODE_PRIVATE).edit();
         prefs = getSharedPreferences("ABC_key", MODE_PRIVATE);
@@ -131,8 +137,10 @@ public class ChatListActivity extends StatusHandler {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 ChatListActivity.query = query;
-                new PerformSearch().execute();
-
+                //Please avoid calling "execute()" alone, as in lower versions of Android all
+                // AsyncTasks were executed at single background thread. So new tasks might be waiting,
+                // until other task working.
+                new PerformSearch().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 return false;
             }
 
@@ -143,16 +151,21 @@ public class ChatListActivity extends StatusHandler {
         });
 
         return true;
-
     }
-
 
     private void LogOut() {
         editor.putBoolean("keep", false);
         editor.putString("username", null);
         editor.apply();
+        Network.instance.StopHeartbeatService();
         startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         finish();
+    }
+
+    public void searchBarClicked(MenuItem item) {
+        //opens up keyboard
+        InputMethodManager imm = (InputMethodManager)   getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
 //    public void GoToChat(View view) {
@@ -163,14 +176,14 @@ public class ChatListActivity extends StatusHandler {
 //        startActivity(new Intent(getApplicationContext(), ChatActivity.class).putExtra("name", cc.getText()));
 //    }
 
-
     public class PerformSearch extends AsyncTask<String, Void, Friend> {
         @Override
         protected Friend doInBackground(String... s) {
 
+            Network.instance.StopHeartbeatService();
+
             Friend friend = null;
             try {
-                Network.instance.sendHearbeats = false;
 
                 Network.instance.oos.writeObject(Command.search);
                 Network.instance.oos.flush();
@@ -178,40 +191,33 @@ public class ChatListActivity extends StatusHandler {
                 Network.instance.oos.writeObject(ChatListActivity.query);
                 Network.instance.oos.flush();
 
-
-                try {
-                    Command command = (Command) Network.instance.ois.readObject();
-
-                    if (command == Command.heartbeat) {
-                        command = (Command) Network.instance.ois.readObject();
-                    }
-                    //Success. Username found and pass correct
-                    if (command == Command.success) {
-                        friend = (Friend) Network.instance.ois.readObject();
-                        System.out.println(friend);
-                    }
-
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+                //Success. Username found and pass correct
+                if ( Network.instance.ois.readObject() == Command.success) {
+                    friend = (Friend) Network.instance.ois.readObject();
                 }
 
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
-
             return friend;
         }
 
         @Override
         protected void onPostExecute(Friend friend) {
-            Network.instance.sendHearbeats = true;
+
+            Network.instance.StartHeartbeatService();
 
             if (friend != null) {
                 chatListAdapter.add(new Friend(friend.getUsername(), friend.getStatus(), friend.getLastLogin(), friend.getIP()));
                 User.mainUser.addFriend(friend.getUsername(), friend.getIP());
+                Toast.makeText(getApplicationContext(), "Friend Added!", Toast.LENGTH_LONG).show();
                 chatListView.setAdapter(chatListAdapter);
             }
+            else
+            {
+                Toast.makeText(getApplicationContext(), "User doesn't exist!", Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
-
 }

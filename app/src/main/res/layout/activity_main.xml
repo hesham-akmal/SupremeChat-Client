@@ -46,12 +46,6 @@
             android:layout_centerHorizontal="true"
             android:gravity="center"/>
 
-        <CheckBox android:id="@+id/checkbox_keep"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Keep me logged in"/>
-
         <EditText
             android:id="@+id/confirm_password_text"
             android:layout_width="wrap_content"

@@ -1,6 +1,10 @@
 package com.supreme.abc.supremechat_client;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
+
+import network_data.Friend;
 
 public class User {
     public static User mainUser;
@@ -8,7 +12,6 @@ public class User {
     private String username;
     private String IP;
     private static Hashtable<String, String> friendList;
-
     //This should be called when the server authenticates the login info (user and pass are ok)
     public static void createMainUserObj(String username, String IP){
         //Syncing server user with "mainUser" object.
@@ -23,6 +26,10 @@ public class User {
 
     public void addFriend(String username, String IP){
         friendList.put(username,IP);
+    }
+
+    public String getUsername(){
+        return this.username;
     }
 
     private void syncServer() {

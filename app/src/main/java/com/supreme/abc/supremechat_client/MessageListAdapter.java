@@ -34,7 +34,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     public int getItemViewType(int position) {
         Message message = (Message) messageList.get(position);
 
-        if (message.getSender().equals(User.mainUser)) {
+        if (message.getSender().equals(User.mainUser) || message.getSender().getUsername().equals(User.mainUser.getUsername())) {
             System.out.println("getItemViewType called");
             // If the current user is the sender of the message
             return VIEW_TYPE_MESSAGE_SENT;
@@ -50,11 +50,9 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         View view;
 
         if (viewType == VIEW_TYPE_MESSAGE_SENT) {
-            System.out.println("Viewholder called");
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_sent, parent, false);
             return new SentMessageHolder(view);
         } else if (viewType == VIEW_TYPE_MESSAGE_RECEIVED) {
-            System.out.println("Viewholder called");
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_recieved, parent, false);
             return new ReceivedMessageHolder(view);
         }
@@ -69,11 +67,9 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
         switch (holder.getItemViewType()) {
             case VIEW_TYPE_MESSAGE_SENT:
-                System.out.println("onbind called");
                 ((SentMessageHolder) holder).bind(message);
                 break;
             case VIEW_TYPE_MESSAGE_RECEIVED:
-                System.out.println("Viewholder called");
                 ((ReceivedMessageHolder) holder).bind(message);
         }
     }

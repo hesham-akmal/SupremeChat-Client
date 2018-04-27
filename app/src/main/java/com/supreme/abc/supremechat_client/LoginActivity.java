@@ -8,14 +8,18 @@ import android.os.StrictMode;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.IOException;
 
 import network_data.AuthUser;
 import network_data.Command;
@@ -25,7 +29,6 @@ public class LoginActivity extends AppCompatActivity {
     private TextView errorPassword,signup_link;
     private Button btn;
     private FloatingActionButton fab_back ;
-    private CheckBox checkbox_keep;
 
     private SharedPreferences prefs ;
     private SharedPreferences.Editor editor;
@@ -51,8 +54,26 @@ public class LoginActivity extends AppCompatActivity {
         passwordText = findViewById(R.id.password_text);
         btn = findViewById(R.id.login_button);
         fab_back = findViewById(R.id.fab_back);
-        checkbox_keep = (CheckBox) findViewById(R.id.checkbox_keep);
         passwordConfirmText = findViewById(R.id.confirm_password_text);
+
+        passwordText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
+                    btn.performClick();
+                }
+                return false;
+            }
+        });
+
+        passwordConfirmText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
+                    btn.performClick();
+                }
+                return false;
+            }
+        });
+
         errorPassword = findViewById(R.id.err_password);
         signup_link = findViewById(R.id.signup_link);
         //create shared prefs vars
@@ -66,34 +87,36 @@ public class LoginActivity extends AppCompatActivity {
         //for showing and hiding btns
         setSignInState(null);
 
-        if(checkKeepLoggedIn())
-        {
-            checkbox_keep.setChecked(true);
+        if(checkLoggedIn())
             StartLoginLoadingScreen();
-        }
 
         //Must write in every activity
         Network.instance.SetAlertDialogContext(LoginActivity.this);
 
         if( Network.instance.Start() )
-            if(checkKeepLoggedIn())
+            if(checkLoggedIn())
                 autoLoginIn();
     }
 
 
     private void autoLoginIn(){
-        String username = prefs.getString("username",null);
-        String IP = Network.instance.socket.getInetAddress().getHostAddress();
-        User.createMainUserObj(username, IP);
-        StartChatActivity();
+        try {
+            String username = prefs.getString("username",null);
+            String IP = Network.instance.socket.getInetAddress().getHostAddress();
+            Network.instance.oos.writeObject(Command.signInAuto);
+            Network.instance.oos.flush();
+            Network.instance.oos.writeObject(new AuthUser(username,null,IP));
+            Network.instance.oos.flush();
+            User.createMainUserObj(username, IP);
+            StartChatActivity();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private boolean checkKeepLoggedIn() {
-        //Check if logged in before (the saved "keepMeLoggedIn" in sharedPrefs)
-        if( prefs.getBoolean("keep",false) && prefs.getString("username",null)!=null )
-            return true;
-        else
-            return false;
+    private boolean checkLoggedIn() {
+        //Check if logged in before ("checkLoggedIn" in sharedPrefs)
+        return ( prefs.getBoolean("checkLoggedIn",false) && prefs.getString("username",null)!=null );
     }
 
     public void setSignInState(View view){
@@ -101,7 +124,6 @@ public class LoginActivity extends AppCompatActivity {
         fab_back.setVisibility(View.GONE);
         errorPassword.setVisibility(View.GONE);
         signup_link.setVisibility(View.VISIBLE);
-        checkbox_keep.setVisibility(View.VISIBLE);
         btn.setText("LOGIN");
         ActivityState = State.SIGN_IN;
         StopLoginLoadingScreen();
@@ -110,7 +132,6 @@ public class LoginActivity extends AppCompatActivity {
         passwordConfirmText.setVisibility(View.VISIBLE);
         fab_back.setVisibility(View.VISIBLE);
         signup_link.setVisibility(View.GONE);
-        checkbox_keep.setVisibility(View.GONE);
         btn.setText("SIGN UP");
         ActivityState = State.SIGN_UP;
         StopLoginLoadingScreen();
@@ -120,8 +141,7 @@ public class LoginActivity extends AppCompatActivity {
     public void BtnClick(View view) {
         errorPassword.setVisibility(View.GONE);
         StartLoginLoadingScreen();
-        //new ClientLogin().execute();//connect
-        new ClientLogin().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
+        new ClientLogin().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     private void StartLoginLoadingScreen(){
@@ -167,14 +187,10 @@ public class LoginActivity extends AppCompatActivity {
                         {
                             User.createMainUserObj(username, IP);
 
-                            //if keepMeLoggedIn, save "keepMeLoggedIn" and "username" to shared pref
-                            boolean x = checkbox_keep.isChecked();
-                            editor.putBoolean("keep", x);
-                            if(x)
-                            {
-                                editor.putString("username", username);
-                                editor.apply();
-                            }
+                            editor.putBoolean("checkLoggedIn", true);
+                            editor.putString("username", username);
+                            editor.apply();
+
                             return 1;
                         }
                         //Fail. Username does not exists, or found but incorrect pass

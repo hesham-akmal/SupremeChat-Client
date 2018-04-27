@@ -2,7 +2,6 @@ package com.supreme.abc.supremechat_client;
 
 import java.util.Hashtable;
 
-
 public class User {
     public static User mainUser = new User();
 
@@ -15,6 +14,7 @@ public class User {
         //Syncing server user with "mainUser" object.
         this.username = username;
         this.IP = IP;
+        //Check if there's a friend list in shared prefs first,Implement later
         friendList = new Hashtable<>();
     }
 
@@ -27,6 +27,10 @@ public class User {
     }
     public void setFriendList(Hashtable<String, String> friendList) {
         this.friendList = friendList;
+    }
+
+    public String getUsername(){
+        return this.username;
     }
 
     private void syncServer() {

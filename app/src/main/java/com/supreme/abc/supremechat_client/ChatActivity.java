@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.supreme.abc.supremechat_client.Networking.AsyncTasks;
 import com.supreme.abc.supremechat_client.Networking.Network;
 
 import java.lang.reflect.Type;
@@ -35,7 +36,6 @@ import network_data.Friend;
 
 public class ChatActivity extends AppCompatActivity {
 
-    //private RecyclerView mMessageRecycler;
     private RecyclerView messageRecycler;
     private MessageListAdapter messageAdapter;
     List<Message> messageList;
@@ -76,7 +76,6 @@ public class ChatActivity extends AppCompatActivity {
             messageAdapter = new MessageListAdapter(this, messageList);
         }
 
-
         messageRecycler = (RecyclerView) findViewById(R.id.reyclerview_message_list);
         messageRecycler.setAdapter(messageAdapter);
         messageRecycler.setLayoutManager(new LinearLayoutManager(this));
@@ -87,8 +86,8 @@ public class ChatActivity extends AppCompatActivity {
 
         sendBtn.setOnClickListener(v -> {
             if (chatBox.getText() != null) {
-                //new FriendConnection();
-                //SendMsg(friend.getIP(),chatBox.getText().toString());
+                String text = chatBox.getText().toString();
+                AsyncTasks.SendMSGtoClient(friend.getUsername(),text);
                 messageList.add(new Message(chatBox.getText().toString(), User.mainUser));
                 messageAdapter = new MessageListAdapter(c, messageList);
                 messageRecycler.setLayoutManager(new LinearLayoutManager(c));

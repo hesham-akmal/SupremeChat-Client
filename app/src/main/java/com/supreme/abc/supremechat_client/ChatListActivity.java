@@ -1,22 +1,16 @@
 package com.supreme.abc.supremechat_client;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import android.support.annotation.NonNull;
-
 import android.support.design.widget.BottomNavigationView;
 
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 
@@ -28,10 +22,7 @@ import android.widget.Toast;
 import com.supreme.abc.supremechat_client.Networking.AsyncTasks;
 import com.supreme.abc.supremechat_client.Networking.Network;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -64,8 +55,9 @@ public class ChatListActivity extends AppCompatActivity {
         //Sync Friends IPs from server
         AsyncTasks.SyncFriendsIPs();
         new UpdateFriendListGUI().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
+        //AsyncTasks.startListeningToClients();
         Network.instance.StartHeartbeatService();
+        AsyncTasks.ListenToMSGs();
         ////////////////////////////////////////////////
 
         editor = getSharedPreferences("ABC_key", MODE_PRIVATE).edit();
@@ -100,17 +92,14 @@ public class ChatListActivity extends AppCompatActivity {
 
         chatListView.setAdapter(chatListAdapter);
 
-        chatListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+        chatListView.setOnItemClickListener((adapterView, view, position, l) -> {
 
 
-                Friend ttt = chatListAdapter.getItem(position);
+            Friend ttt = chatListAdapter.getItem(position);
 
 
-                startActivity(new Intent(getApplicationContext(), ChatActivity.class).putExtra("Friend", ttt));
+            startActivity(new Intent(getApplicationContext(), ChatActivity.class).putExtra("Friend", ttt));
 
-            }
         });
 
     }
@@ -182,21 +171,24 @@ public class ChatListActivity extends AppCompatActivity {
         protected Friend doInBackground(String... s) {
 
             Friend friend = null;
-            try {
 
-                Network.instance.oos.writeObject(Command.search);
-                Network.instance.oos.flush();
+            synchronized(Network.instance.NetLock) {
 
-                Network.instance.oos.writeObject(ChatListActivity.query);
-                Network.instance.oos.flush();
+                try {
+                    Network.instance.oos.writeObject(Command.search);
+                    Network.instance.oos.flush();
 
-                //Success. Username found and pass correct
-                if (Network.instance.ois.readObject() == Command.success) {
-                    friend = (Friend) Network.instance.ois.readObject();
+                    Network.instance.oos.writeObject(ChatListActivity.query);
+                    Network.instance.oos.flush();
+
+                    //Success. Username found and pass correct
+                    if (Network.instance.ois.readObject() == Command.success) {
+                        friend = (Friend) Network.instance.ois.readObject();
+                    }
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
             }
             return friend;
         }

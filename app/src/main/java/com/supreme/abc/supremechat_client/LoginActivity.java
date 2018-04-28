@@ -92,18 +92,21 @@ public class LoginActivity extends AppCompatActivity {
                 autoLoginIn();
     }
     private void autoLoginIn(){
-        try {
-            String username = prefs.getString("username",null);
-            Network.instance.oos.writeObject(Command.signInAuto);
-            Network.instance.oos.flush();
-            Network.instance.oos.writeObject(new AuthUser(username,null));
-            Network.instance.oos.flush();
-            User.mainUser.Create(username);
-            StartChatActivity();
-        } catch (Exception e) {
-            e.printStackTrace();
+        synchronized(Network.instance.NetLock) {
+            try {
+                String username = prefs.getString("username", null);
+                Network.instance.oos.writeObject(Command.signInAuto);
+                Network.instance.oos.flush();
+                Network.instance.oos.writeObject(new AuthUser(username, null));
+                Network.instance.oos.flush();
+                User.mainUser.Create(username);
+                StartChatActivity();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
+
 
     private boolean checkLoggedIn() {
         //Check if logged in before ("checkLoggedIn" in sharedPrefs)
@@ -149,107 +152,112 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected Integer doInBackground(Integer... integers) {
 
-            //if sign up and two pass doesnt match
-            if (ActivityState == State.SIGN_UP &&
-                    !passwordText.getText().toString().equals(passwordConfirmText.getText().toString()))
-                return -4;
+            synchronized (Network.instance.NetLock) {
 
-            try {
+                    //if sign up and two pass doesnt match
+                    if (ActivityState == State.SIGN_UP &&
+                            !passwordText.getText().toString().equals(passwordConfirmText.getText().toString()))
+                        return -4;
 
-                String  username = usernameText.getText().toString();
-                //encrypt password to be sent
-                String password = AdvancedCrypto.encrypt(passwordText.getText().toString());
+                    try {
 
-                switch (ActivityState) {
-                    case SIGN_IN:
+                        String username = usernameText.getText().toString();
+                        //encrypt password to be sent
+                        String password = AdvancedCrypto.encrypt(passwordText.getText().toString());
 
-                        //send signIn command
-                        Network.instance.oos.writeObject(Command.signIn);
-                        Network.instance.oos.flush();
+                        switch (ActivityState) {
+                            case SIGN_IN:
 
-                        //send username and pass to server
-                        Network.instance.oos.writeObject(new AuthUser(username,password));
-                        Network.instance.oos.flush();
+                                //send signIn command
+                                Network.instance.oos.writeObject(Command.signIn);
+                                Network.instance.oos.flush();
 
-                        command = (Command) Network.instance.ois.readObject();
-                        //Success. Username found and pass correct
-                        if(command == Command.success)
-                        {
-                            User.mainUser.Create(username);
+                                //send username and pass to server
+                                Network.instance.oos.writeObject(new AuthUser(username, password));
+                                Network.instance.oos.flush();
 
-                            editor.putBoolean("checkLoggedIn", true);
-                            editor.putString("username", username);
-                            editor.apply();
 
-                            return 1;
+                                command = (Command) Network.instance.ois.readObject();
+                                //Success. Username found and pass correct
+                                if (command == Command.success) {
+                                    User.mainUser.Create(username);
+
+                                    editor.putBoolean("checkLoggedIn", true);
+                                    editor.putString("username", username);
+                                    editor.apply();
+
+                                    return 1;
+                                }
+                                //Fail. Username does not exists, or found but incorrect pass
+                                else if (command == Command.fail) {
+                                    return -1;
+                                }
+
+                                break;
+
+                            case SIGN_UP:
+
+                                //send signUp command
+                                Network.instance.oos.writeObject(Command.signUp);
+                                Network.instance.oos.flush();
+
+                                //send username and pass
+                                Network.instance.oos.writeObject(new AuthUser(username, password));
+                                Network.instance.oos.flush();
+
+                                command = (Command) Network.instance.ois.readObject();
+                                //Username doesn't already exist, user created successfully
+                                if (command == Command.success) {
+                                    User.mainUser.Create(username);
+
+                                    editor.putBoolean("checkLoggedIn", true);
+                                    editor.putString("username", username);
+                                    editor.apply();
+
+                                    return 1;
+                                }
+                                //Username already exists
+                                else if (command == Command.fail) {
+                                    return -3;
+                                }
+
+                                break;
+
                         }
-                        //Fail. Username does not exists, or found but incorrect pass
-                        else if(command == Command.fail)
-                        {
-                            return -1;
-                        }
-
-                        break;
-
-                    case SIGN_UP:
-
-                        //send signUp command
-                        Network.instance.oos.writeObject(Command.signUp);
-                        Network.instance.oos.flush();
-
-                        //send username and pass
-                        Network.instance.oos.writeObject(new AuthUser(username,password));
-                        Network.instance.oos.flush();
-
-                        command = (Command) Network.instance.ois.readObject();
-                        //Username doesn't already exist, user created successfully
-                        if(command == Command.success)
-                        {
-                            User.mainUser.Create(username);
-                            return 1;
-                        }
-                        //Username already exists
-                        else if (command == Command.fail)
-                        {
-                            return -3;
-                        }
-
-                        break;
-
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
             }
             return 0;
-        }
+    }
 
-        @Override
-        protected void onPostExecute(Integer result) {
+    @Override
+    protected void onPostExecute(Integer result) {
 
-            switch (result) {
-                case 1:
-                    StartChatActivity();
-                    break;
-                case -1:
-                    Toast.makeText(getApplicationContext(), "Username or Password incorrect.", Toast.LENGTH_LONG).show();
-                    SetSignInState(null);
-                    break;
-                case -3:
-                    Toast.makeText(getApplicationContext(), "Username already exists.", Toast.LENGTH_LONG).show();
-                    setSignUpState(null);
-                    break;
-                case -4:
-                    //errorPassword.setVisibility(View.VISIBLE);
-                    Toast.makeText(getApplicationContext(), "Can't connect to server", Toast.LENGTH_LONG).show();
-                    //setSignUpState(null);
-                    break;
-                case 0:
-                    Toast.makeText(getApplicationContext(), "Unknown error has occured. Please try again.", Toast.LENGTH_LONG).show();
-                    SetSignInState(null);
-                    break;
-            }
+        switch (result) {
+            case 1:
+                StartChatActivity();
+                break;
+            case -1:
+                Toast.makeText(getApplicationContext(), "Username or Password incorrect.", Toast.LENGTH_LONG).show();
+                SetSignInState(null);
+                break;
+            case -3:
+                Toast.makeText(getApplicationContext(), "Username already exists.", Toast.LENGTH_LONG).show();
+                setSignUpState(null);
+                break;
+            case -4:
+                //errorPassword.setVisibility(View.VISIBLE);
+                Toast.makeText(getApplicationContext(), "Can't connect to server", Toast.LENGTH_LONG).show();
+                //setSignUpState(null);
+                break;
+            case 0:
+                Toast.makeText(getApplicationContext(), "Unknown error has occured. Please try again.", Toast.LENGTH_LONG).show();
+                SetSignInState(null);
+                break;
         }
     }
+}
 
     private void StartChatActivity() {
         startActivity(new Intent(getApplicationContext(), ChatListActivity.class));

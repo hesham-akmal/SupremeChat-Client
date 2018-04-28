@@ -22,17 +22,11 @@ public class Network {
     public ObjectOutputStream oos;
     public ObjectInputStream ois;
 
-    public  boolean sendHeartbeats;
-    //private AlertDialog builder;
+    private  boolean sendHeartbeats;
     private Runnable HeartbeatHandlerRunnable;
     private Handler HeartbeatTimerHandler;
 
-    /*public void SetAlertDialogContext(Context context) {
-        builder = new AlertDialog.Builder(context).create();
-        builder.setTitle("Cannot connect to server");
-        builder.setIcon(android.R.drawable.ic_dialog_alert);
-        builder.setCancelable(false);
-    }*/
+    public final Object NetLock = new Object();
 
     public boolean Start() {
         try {
@@ -47,18 +41,20 @@ public class Network {
             HeartbeatHandlerRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        if(sendHeartbeats)
-                        {
-                            oos.writeObject(Command.heartbeat);
-                            oos.flush();
-                            Log.v("XXX","SENT HB");
+                    synchronized(NetLock) {
+                        try {
+                            if(sendHeartbeats)
+                            {
+                                oos.writeObject(Command.heartbeat);
+                                oos.flush();
+                                //Log.v("XXX","SENT HB");
+                            }
+                        }catch (Exception e){
+                            Log.v("XXX","LOST CONNECTION");
+                        }finally {
+                            //run each second
+                            HeartbeatTimerHandler.postDelayed(this, 1000);
                         }
-                    }catch (Exception e){
-                        Log.v("XXX","LOST CONNECTION");
-                    }finally {
-                        //run each second
-                        HeartbeatTimerHandler.postDelayed(this, 1000);
                     }
                 }
             };

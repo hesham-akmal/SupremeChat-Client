@@ -14,17 +14,18 @@ import android.widget.TextView;
 import java.util.List;
 
 import network_data.Friend;
+import network_data.MessagePacket;
 
 public class MessageListAdapter extends RecyclerView.Adapter {
 
     private Context context;
-    private List<Message> messageList;
+    private List<MessagePacket> messageList;
 
     private static final int VIEW_TYPE_MESSAGE_SENT = 1;
     private static final int VIEW_TYPE_MESSAGE_RECEIVED = 2;
 
 
-    public MessageListAdapter(Context context, List<Message> messageList) {
+    public MessageListAdapter(Context context, List<MessagePacket> messageList) {
         this.context = context;
         this.messageList = messageList;
     }
@@ -32,9 +33,9 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     // Determines the appropriate ViewType according to the sender of the message.
     @Override
     public int getItemViewType(int position) {
-        Message message = (Message) messageList.get(position);
+        MessagePacket message = (MessagePacket) messageList.get(position);
 
-        if (message.getSender().equals(User.mainUser) || message.getSender().getUsername().equals(User.mainUser.getUsername())) {
+        if (message.getSender().equals(User.mainUser.getUsername())) {
             System.out.println("getItemViewType called");
             // If the current user is the sender of the message
             return VIEW_TYPE_MESSAGE_SENT;
@@ -63,7 +64,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     // Passes the message object to a ViewHolder so that the contents can be bound to UI.
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        Message message = (Message) messageList.get(position);
+        MessagePacket message = (MessagePacket) messageList.get(position);
 
         switch (holder.getItemViewType()) {
             case VIEW_TYPE_MESSAGE_SENT:
@@ -92,8 +93,8 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             //profileImage = (ImageView) itemView.findViewById(R.id.image_message_profile);
         }
 
-        void bind(Message message) {
-            messageText.setText(message.getMessage());
+        void bind(MessagePacket message) {
+            messageText.setText(message.getText());
 
         }
     }
@@ -110,8 +111,8 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             //profileImage = (ImageView) itemView.findViewById(R.id.image_message_profile);
         }
 
-        void bind(Message message) {
-            messageText.setText(message.getMessage());
+        void bind(MessagePacket message) {
+            messageText.setText(message.getText());
 
         }
     }

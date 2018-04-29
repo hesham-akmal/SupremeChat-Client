@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 
 import com.supreme.abc.supremechat_client.Networking.AsyncTasks;
+import com.supreme.abc.supremechat_client.Networking.ListenToMessages;
 import com.supreme.abc.supremechat_client.Networking.Network;
 
 import java.util.ArrayList;
@@ -28,8 +29,9 @@ import java.util.Map;
 
 import network_data.Command;
 import network_data.Friend;
+import network_data.MessagePacket;
 
-public class ChatListActivity extends AppCompatActivity {
+public class ChatListActivity extends AppCompatActivity implements AsyncResponse{
 
     ImageView senderPic;
     public static String query;
@@ -46,6 +48,10 @@ public class ChatListActivity extends AppCompatActivity {
 
     private ChatListAdapter chatListAdapter;
 
+
+    ListenToMessages listen = new ListenToMessages();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,9 +63,12 @@ public class ChatListActivity extends AppCompatActivity {
         new UpdateFriendListGUI().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         //AsyncTasks.startListeningToClients();
         Network.instance.StartHeartbeatService();
-        AsyncTasks.ListenToMSGs();
+        //AsyncTasks.ListenToMSGs();
         ////////////////////////////////////////////////
+//        AsyncTasks.CheckConnection();
+        listen.delegate=this;
 
+        listen.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         editor = getSharedPreferences("ABC_key", MODE_PRIVATE).edit();
         prefs = getSharedPreferences("ABC_key", MODE_PRIVATE);
 
@@ -101,6 +110,13 @@ public class ChatListActivity extends AppCompatActivity {
             startActivity(new Intent(getApplicationContext(), ChatActivity.class).putExtra("Friend", ttt));
 
         });
+
+    }
+
+    @Override
+    public void processFinish(MessagePacket output) {
+        ChatActivity.messageList.add(output);
+        ChatActivity.messageAdapter.notifyDataSetChanged();
 
     }
 
@@ -225,4 +241,7 @@ public class ChatListActivity extends AppCompatActivity {
             chatListView.setAdapter(chatListAdapter);
         }
     }
+
+
+
 }

@@ -33,17 +33,20 @@ import java.util.Set;
 
 import network_data.Command;
 import network_data.Friend;
+import network_data.MessagePacket;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity{
 
     private RecyclerView messageRecycler;
-    private MessageListAdapter messageAdapter;
-    List<Message> messageList;
+    public static MessageListAdapter messageAdapter;
+    public static List<MessagePacket> messageList;
     static Friend friend;
     EditText chatBox;
     Button sendBtn;
     static Context c;
     SharedPreferences prefs;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +56,7 @@ public class ChatActivity extends AppCompatActivity {
         friend = (Friend) getIntent().getSerializableExtra("Friend");
         setTitle(friend.getUsername());
 
-        //messageList = friend.getChatHistory();
+//        AsyncTasks.CheckConnection();
 
         prefs = getSharedPreferences("App_settings", MODE_PRIVATE);
 
@@ -63,9 +66,10 @@ public class ChatActivity extends AppCompatActivity {
 
         String json = appSharedPrefs.getString(friend.getUsername(), "");
 
-        Type type = new TypeToken<List<Message>>() {
+        Type type = new TypeToken<List<MessagePacket>>() {
         }.getType();
         messageList = gson.fromJson(json, type);
+
 
 
         if (messageList == null) {
@@ -87,15 +91,19 @@ public class ChatActivity extends AppCompatActivity {
         sendBtn.setOnClickListener(v -> {
             if (chatBox.getText() != null) {
                 String text = chatBox.getText().toString();
+                Network.instance.StopHeartbeatService();
                 AsyncTasks.SendMSGtoClient(friend.getUsername(),text);
-                messageList.add(new Message(chatBox.getText().toString(), User.mainUser));
-                messageAdapter = new MessageListAdapter(c, messageList);
-                messageRecycler.setLayoutManager(new LinearLayoutManager(c));
-                messageRecycler.setAdapter(messageAdapter);
+                messageList.add(new MessagePacket(User.mainUser.getUsername(), friend.getUsername(), chatBox.getText().toString()));
+                messageAdapter.notifyDataSetChanged();
+//                +
+//                messageRecycler.setAdapter(messageAdapter);
+                Network.instance.StopHeartbeatService();
                 chatBox.setText("");
             }
         });
     }
+
+
 
     @Override
     public void onBackPressed() {

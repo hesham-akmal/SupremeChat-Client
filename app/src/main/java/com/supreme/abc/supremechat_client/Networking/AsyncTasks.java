@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.supreme.abc.supremechat_client.AsyncResponse;
 import com.supreme.abc.supremechat_client.User;
 
 import java.net.SocketException;
@@ -29,11 +30,32 @@ public class AsyncTasks {
         new SendMSG(friendName,text).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    public static void ListenToMSGs(){
-        new ListenToMSGs().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        //new ListenToMSGs();
-    }
+//    public static void CheckConnection(){
+//        new checkConnection().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//    }
+
+//    public static void ListenToMSGs(){
+//        new ListenToMSGs().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//        //new ListenToMSGs();
+//    }
 }
+
+//class checkConnection extends AsyncTask<Void, Void, Boolean>{
+//    @Override
+//    protected Boolean doInBackground(Void... voids) {
+//        try {
+//            Network.instance.oos.writeObject(Command.checkConnection);
+//            Network.instance.oos.flush();
+//
+//            if(!Network.instance.ois.readObject().equals("success")){
+//                Network.instance.Start();
+//            }
+//        }catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+//}
 
 class SyncFriendsIPs extends AsyncTask<String, Void, Void> {
     @Override
@@ -52,55 +74,53 @@ class SyncFriendsIPs extends AsyncTask<String, Void, Void> {
         return null;
     }
 }
-
-class ListenToMSGs extends AsyncTask<String, Void, MessagePacket> {
-    @Override
-    protected MessagePacket doInBackground(String... s) {
-
-        while (true)
-        {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            synchronized (Network.instance.NetLock)
-            {
-                try
-                {
-                    Network.instance.socket.setSoTimeout(10);
-                    Log.v("XXX", "LISTEN TO MSGS");
-                    MessagePacket mp = (MessagePacket) Network.instance.ois.readObject();
-                    Log.v("XXX", "MSG: " + mp.getText() + " From " + mp.getSender());
-                    new ListenToMSGs().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //starts listening again for next msg
-                    return mp;
-                } catch (Exception e) {
-                }finally {
-                    try {
-                        Network.instance.socket.setSoTimeout(0);
-                    } catch (SocketException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    protected void onPostExecute(MessagePacket mp) {
-
-        if (mp != null) {
-            //herexd
-            mp.getText();
-            mp.getSender();
-            mp.getReceiver();
-        }
-        else {
-
-        }
-    }
-}
+//
+//class ListenToMSGs extends AsyncTask<String, Void, MessagePacket> {
+//    public AsyncResponse delegate = null;
+//    @Override
+//    protected MessagePacket doInBackground(String... s) {
+//
+//        while (true)
+//        {
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//
+//            synchronized (Network.instance.NetLock)
+//            {
+//                try
+//                {
+//                    Network.instance.socket.setSoTimeout(10);
+//                    Log.v("XXX", "LISTEN TO MSGS");
+//                    MessagePacket mp = (MessagePacket) Network.instance.ois.readObject();
+//                    Log.v("XXX", "MSG: " + mp.getText() + " From " + mp.getSender());
+//                    new ListenToMSGs().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //starts listening again for next msg
+//                    return mp;
+//                } catch (Exception e) {
+//                }finally {
+//                    try {
+//                        Network.instance.socket.setSoTimeout(0);
+//                    } catch (SocketException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    @Override
+//    protected void onPostExecute(MessagePacket mp) {
+//
+//        if (mp != null) {
+//            delegate.processFinish(mp);
+//        }
+//        else {
+//
+//        }
+//    }
+//}
 
 class SendMSG extends AsyncTask<String, Void, Void> {
 

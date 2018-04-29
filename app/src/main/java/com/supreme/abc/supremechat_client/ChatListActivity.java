@@ -26,12 +26,13 @@ import com.supreme.abc.supremechat_client.Networking.Network;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import network_data.Command;
 import network_data.Friend;
 import network_data.MessagePacket;
 
-public class ChatListActivity extends AppCompatActivity implements AsyncResponse{
+public class ChatListActivity extends AppCompatActivity {
 
     ImageView senderPic;
     public static String query;
@@ -49,7 +50,7 @@ public class ChatListActivity extends AppCompatActivity implements AsyncResponse
     private ChatListAdapter chatListAdapter;
 
 
-    ListenToMessages listen = new ListenToMessages();
+    //ListenToMessages listen = new ListenToMessages();
 
 
     @Override
@@ -65,10 +66,11 @@ public class ChatListActivity extends AppCompatActivity implements AsyncResponse
         Network.instance.StartHeartbeatService();
         //AsyncTasks.ListenToMSGs();
         ////////////////////////////////////////////////
-//        AsyncTasks.CheckConnection();
-        listen.delegate=this;
+        //listen.delegate=this;
 
-        listen.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        new ListenToMessages().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+        //listen.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         editor = getSharedPreferences("ABC_key", MODE_PRIVATE).edit();
         prefs = getSharedPreferences("ABC_key", MODE_PRIVATE);
 
@@ -113,12 +115,12 @@ public class ChatListActivity extends AppCompatActivity implements AsyncResponse
 
     }
 
-    @Override
-    public void processFinish(MessagePacket output) {
-        ChatActivity.messageList.add(output);
-        ChatActivity.messageAdapter.notifyDataSetChanged();
-
-    }
+//    @Override
+//    public void processFinish(MessagePacket output) {
+//        ChatActivity.messageList.add(output);
+//        ChatActivity.messageAdapter.notifyDataSetChanged();
+//
+//    }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {

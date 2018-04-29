@@ -4,17 +4,17 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.supreme.abc.supremechat_client.AsyncResponse;
+import com.supreme.abc.supremechat_client.ChatActivity;
 
 import java.net.SocketException;
 
 import network_data.Command;
 import network_data.MessagePacket;
 
-public class ListenToMessages extends AsyncTask<String, Void, MessagePacket> {
+public class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
     public AsyncResponse delegate = null;
-
     @Override
-    protected MessagePacket doInBackground(String... s) {
+    protected Void doInBackground(String... s) {
 
         while (true) {
             try {
@@ -30,8 +30,8 @@ public class ListenToMessages extends AsyncTask<String, Void, MessagePacket> {
                     Log.v("XXX", "LISTEN TO MSGS");
                     MessagePacket mp = (MessagePacket) Network.instance.ois.readObject();
                     Log.v("XXX", "MSG: " + mp.getText() + " From " + mp.getSender());
-                    new ListenToMessages().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //starts listening again for next msg
-                    return mp;
+                    publishProgress(mp);
+                    //new ListenToMessages().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //starts listening again for next msg
 
                 } catch (Exception e) {
                 } finally {
@@ -45,14 +45,18 @@ public class ListenToMessages extends AsyncTask<String, Void, MessagePacket> {
         }
     }
 
-
     @Override
-    protected void onPostExecute(MessagePacket mp) {
+    protected void onProgressUpdate(MessagePacket... msgs) {
+        ChatActivity.messageList.add(msgs[0]);
+        ChatActivity.messageAdapter.notifyDataSetChanged();
 
-        if (mp != null) {
-            delegate.processFinish(mp);
-        } else {
-
-        }
     }
+
+//    @Override
+//    protected void onPostExecute(MessagePacket mp) {
+//
+//        if (mp != null) {
+//            delegate.processFinish(mp);
+//        }
+//    }
 }

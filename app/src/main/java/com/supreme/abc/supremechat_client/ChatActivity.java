@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.supreme.abc.supremechat_client.Networking.AsyncTasks;
+import com.supreme.abc.supremechat_client.Networking.ListenToMessages;
 import com.supreme.abc.supremechat_client.Networking.Network;
 
 import java.lang.reflect.Type;
@@ -46,8 +47,6 @@ public class ChatActivity extends AppCompatActivity{
     static Context c;
     SharedPreferences prefs;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,8 +54,6 @@ public class ChatActivity extends AppCompatActivity{
         c = this;
         friend = (Friend) getIntent().getSerializableExtra("Friend");
         setTitle(friend.getUsername());
-
-//        AsyncTasks.CheckConnection();
 
         prefs = getSharedPreferences("App_settings", MODE_PRIVATE);
 
@@ -95,14 +92,11 @@ public class ChatActivity extends AppCompatActivity{
                 AsyncTasks.SendMSGtoClient(friend.getUsername(),text);
                 messageList.add(new MessagePacket(User.mainUser.getUsername(), friend.getUsername(), chatBox.getText().toString()));
                 messageAdapter.notifyDataSetChanged();
-//                +
-//                messageRecycler.setAdapter(messageAdapter);
-                Network.instance.StopHeartbeatService();
+                Network.instance.StartHeartbeatService();
                 chatBox.setText("");
             }
         });
     }
-
 
 
     @Override

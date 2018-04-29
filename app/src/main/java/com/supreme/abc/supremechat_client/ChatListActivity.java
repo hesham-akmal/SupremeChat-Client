@@ -1,32 +1,30 @@
 package com.supreme.abc.supremechat_client;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
+import android.preference.PreferenceManager;
 import android.support.design.widget.BottomNavigationView;
-
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ImageView;
-
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.supreme.abc.supremechat_client.Networking.AsyncTasks;
-import com.supreme.abc.supremechat_client.Networking.ListenToMessages;
 import com.supreme.abc.supremechat_client.Networking.Network;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import network_data.Command;
 import network_data.Friend;
@@ -37,6 +35,7 @@ public class ChatListActivity extends AppCompatActivity {
     ImageView senderPic;
     public static String query;
     private BottomNavigationView bottomNavigationView;
+    List<MessagePacket> messageList = new ArrayList<>();
 
     private SharedPreferences prefs;
     private SharedPreferences.Editor editor;
@@ -48,15 +47,43 @@ public class ChatListActivity extends AppCompatActivity {
     //mainUser MUST be logged in successfully and created to access this activity
 
     private ChatListAdapter chatListAdapter;
-
-
-    //ListenToMessages listen = new ListenToMessages();
+    public static Hashtable<String, MessageContainer> chatContainer;
+    //    public static Hashtable <String, List<MessagePacket>> chatLists;
+    SharedPreferences sharedPrefs;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_list);
+//        chatContainer = new Hashtable<>();
+
+//        CHATCONTAINERS
+
+//        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
+//        Gson gson = new Gson();
+//
+//        String json = appSharedPrefs.getString("chatContainer", "");
+//
+//        Type type = new TypeToken<Hashtable <String, MessageContainer>>() {}.getType();
+//        chatContainer= gson.fromJson(json, type);
+        if (chatContainer == null) {
+            chatContainer = new Hashtable<>();
+        }
+
+
+//        CHATLISTS
+//        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
+//        Gson gson = new Gson();
+//
+//        String json = appSharedPrefs.getString("chatLists", "");
+//
+//        Type type = new TypeToken<Hashtable<String, List<MessagePacket>>>() {}.getType();
+//        chatLists= gson.fromJson(json, type);
+//        if(chatLists==null){
+//            chatLists = new Hashtable<>();
+//        }
+
 
         ///SETUP///////////////////////////////////////
         //Sync Friends IPs from server
@@ -68,31 +95,31 @@ public class ChatListActivity extends AppCompatActivity {
         ////////////////////////////////////////////////
         //listen.delegate=this;
 
-        new ListenToMessages().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        AsyncTasks.ListenToMessages();
 
         //listen.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         editor = getSharedPreferences("ABC_key", MODE_PRIVATE).edit();
         prefs = getSharedPreferences("ABC_key", MODE_PRIVATE);
 
         setTitle(getIntent().getStringExtra("username"));
-        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_nav);
-
-        bottomNavigationView.setOnNavigationItemSelectedListener(
-                item -> {
-                    switch (item.getItemId()) {
-                        case R.id.bottom_bar_item_calls:
-                            // TODO
-                            return true;
-                        case R.id.bottom_bar_item_recents:
-                            // TODO
-                            return true;
-                        case R.id.bottom_bar_item_trips:
-                            LogOut();
-                            return true;
-                    }
-                    return false;
-                }
-        );
+//        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_nav);
+//
+//        bottomNavigationView.setOnNavigationItemSelectedListener(
+//                item -> {
+//                    switch (item.getItemId()) {
+//                        case R.id.bottom_bar_item_calls:
+//                            // TODO
+//                            return true;
+//                        case R.id.bottom_bar_item_recents:
+//                            // TODO
+//                            return true;
+//                        case R.id.bottom_bar_item_trips:
+//                            LogOut();
+//                            return true;
+//                    }
+//                    return false;
+//                }
+//        );
 
         //getActionBar().setIcon(R.drawable.my_icon);
 
@@ -104,23 +131,11 @@ public class ChatListActivity extends AppCompatActivity {
         chatListView.setAdapter(chatListAdapter);
 
         chatListView.setOnItemClickListener((adapterView, view, position, l) -> {
-
-
-            Friend ttt = chatListAdapter.getItem(position);
-
-
-            startActivity(new Intent(getApplicationContext(), ChatActivity.class).putExtra("Friend", ttt));
-
+            Friend friend = chatListAdapter.getItem(position);
+            startActivity(new Intent(getApplicationContext(), ChatActivity.class).putExtra("Friend", friend));
         });
-
     }
 
-//    @Override
-//    public void processFinish(MessagePacket output) {
-//        ChatActivity.messageList.add(output);
-//        ChatActivity.messageAdapter.notifyDataSetChanged();
-//
-//    }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -144,14 +159,14 @@ public class ChatListActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 ChatListActivity.query = query;
 
-                if(User.mainUser.checkFriendExist(query)){
+                if (User.mainUser.checkFriendExist(query)) {
                     Toast.makeText(getApplicationContext(), "Friend already added!", Toast.LENGTH_LONG).show();
+                    //chatLists.put(query, new ArrayList<>());
+
+                    chatContainer.put(query, new MessageContainer());
                     return false;
                 }
 
-                //Avoid calling "execute()" alone, as in lower versions of Android all
-                // AsyncTasks were executed at single background thread. So new tasks might be waiting,
-                // until other task working.
                 new PerformSearch().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 return false;
             }
@@ -175,13 +190,18 @@ public class ChatListActivity extends AppCompatActivity {
         finish();
     }
 
-//    public void GoToChat(View view) {
-//        LinearLayout v = (LinearLayout) view;
-//        TextView cc = (TextView) v.getChildAt(0);
-//        System.out.println(cc.getText());
-//
-//        startActivity(new Intent(getApplicationContext(), ChatActivity.class).putExtra("name", cc.getText()));
-//    }
+
+    public void SaveHashContainer() {
+        SharedPreferences settings = getApplicationContext().getSharedPreferences("chatContainer", Context.MODE_PRIVATE);
+        settings.edit().clear().commit();
+
+        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
+        SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(chatContainer);
+        prefsEditor.putString("chatContainer", json);
+        prefsEditor.apply();
+    }
 
     //Search and add friend if found
     public class PerformSearch extends AsyncTask<String, Void, Friend> {
@@ -190,7 +210,7 @@ public class ChatListActivity extends AppCompatActivity {
 
             Friend friend = null;
 
-            synchronized(Network.instance.NetLock) {
+            synchronized (Network.instance.NetLock) {
 
                 try {
                     Network.instance.oos.writeObject(Command.search);
@@ -202,6 +222,8 @@ public class ChatListActivity extends AppCompatActivity {
                     //Success. Username found and pass correct
                     if (Network.instance.ois.readObject() == Command.success) {
                         friend = (Friend) Network.instance.ois.readObject();
+                        //chatLists.put(query, new ArrayList<>());
+                        chatContainer.put(query, new MessageContainer());
                     }
 
                 } catch (Exception ex) {
@@ -221,9 +243,7 @@ public class ChatListActivity extends AppCompatActivity {
                 User.mainUser.AddFriend(friend.getUsername(), friend);
                 Toast.makeText(getApplicationContext(), "Friend Added!", Toast.LENGTH_LONG).show();
                 chatListView.setAdapter(chatListAdapter);
-            }
-            else
-            {
+            } else {
                 Toast.makeText(getApplicationContext(), "User doesn't exist!", Toast.LENGTH_SHORT).show();
             }
         }
@@ -232,7 +252,7 @@ public class ChatListActivity extends AppCompatActivity {
     public class UpdateFriendListGUI extends AsyncTask<String, Void, Integer> {
         @Override
         protected Integer doInBackground(String... s) {
-            for(Map.Entry<String, Friend> entry : Database.instance.LoadFriendList().entrySet()) {
+            for (Map.Entry<String, Friend> entry : Database.instance.LoadFriendList().entrySet()) {
                 tempUser.add(entry.getValue());
             }
             return 1;
@@ -243,7 +263,6 @@ public class ChatListActivity extends AppCompatActivity {
             chatListView.setAdapter(chatListAdapter);
         }
     }
-
 
 
 }

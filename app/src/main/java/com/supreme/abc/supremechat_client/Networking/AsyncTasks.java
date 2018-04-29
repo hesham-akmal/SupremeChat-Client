@@ -1,11 +1,11 @@
 package com.supreme.abc.supremechat_client.Networking;
 
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.supreme.abc.supremechat_client.AsyncResponse;
+import com.supreme.abc.supremechat_client.ChatActivity;
+import com.supreme.abc.supremechat_client.ChatListActivity;
+//import com.supreme.abc.supremechat_client.MessageContainer;
 import com.supreme.abc.supremechat_client.User;
 
 import java.net.SocketException;
@@ -34,10 +34,10 @@ public class AsyncTasks {
 //        new checkConnection().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 //    }
 
-//    public static void ListenToMSGs(){
-//        new ListenToMSGs().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-//        //new ListenToMSGs();
-//    }
+    public static void ListenToMessages(){
+        new ListenToMessages().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+    }
 }
 
 //class checkConnection extends AsyncTask<Void, Void, Boolean>{
@@ -74,6 +74,56 @@ class SyncFriendsIPs extends AsyncTask<String, Void, Void> {
         return null;
     }
 }
+
+class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
+    @Override
+    protected Void doInBackground(String... s) {
+
+        while (true) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            synchronized (Network.instance.NetLock) {
+                try {
+
+                    Network.instance.socket.setSoTimeout(10);
+                    Log.v("XXX", "LISTEN TO MSGS");
+                    MessagePacket mp = (MessagePacket) Network.instance.ois.readObject();
+                    Log.v("XXX", "MSG: " + mp.getText() + " From " + mp.getSender());
+                    publishProgress(mp);
+                    //new ListenToMessages().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //starts listening again for next msg
+
+                } catch (Exception e) {
+                } finally {
+                    try {
+                        Network.instance.socket.setSoTimeout(0);
+                    } catch (SocketException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onProgressUpdate(MessagePacket... msgs) {
+
+        //ChatListActivity.chatLists.get(msgs[0].getSender()).add(msgs[0]);
+        ChatListActivity.chatContainer.get(msgs[0].getSender()).messageList.add(msgs[0]);
+        ChatListActivity.chatContainer.get(msgs[0].getSender()).messageAdapter.notifyDataSetChanged();
+//        ChatActivity.messageAdapter.notifyDataSetChanged();
+//        ChatActivity.messageRecycler.smoothScrollToPosition(ChatActivity.messageAdapter.getItemCount());
+//        MessageContainer msgContainer = ChatListActivity.chatContainer.get(msgs[0].getReceiver());
+//        msgContainer.messageList.add(msgs[0]);
+//        msgContainer.messageAdapter.notifyDataSetChanged();
+//        msgContainer.recyclerView.smoothScrollToPosition(msgContainer.messageAdapter.getItemCount());
+
+    }
+}
+
 //
 //class ListenToMSGs extends AsyncTask<String, Void, MessagePacket> {
 //    public AsyncResponse delegate = null;

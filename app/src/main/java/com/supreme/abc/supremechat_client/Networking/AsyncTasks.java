@@ -3,9 +3,10 @@ package com.supreme.abc.supremechat_client.Networking;
 import android.os.AsyncTask;
 import android.util.Log;
 
+//import com.supreme.abc.supremechat_client.ChatListActivity;
+//import com.supreme.abc.supremechat_client.MessageContainer;
 import com.supreme.abc.supremechat_client.ChatActivity;
 import com.supreme.abc.supremechat_client.ChatListActivity;
-//import com.supreme.abc.supremechat_client.MessageContainer;
 import com.supreme.abc.supremechat_client.User;
 
 import java.net.SocketException;
@@ -112,8 +113,24 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
     protected void onProgressUpdate(MessagePacket... msgs) {
 
         //ChatListActivity.chatLists.get(msgs[0].getSender()).add(msgs[0]);
-        ChatListActivity.chatContainer.get(msgs[0].getSender()).messageList.add(msgs[0]);
-        ChatListActivity.chatContainer.get(msgs[0].getSender()).messageAdapter.notifyDataSetChanged();
+
+        //Uncomment this if  main2 fails----
+        //ChatListActivity.chatContainer.get(msgs[0].getSender()).messageList.add(msgs[0]);
+        //ChatListActivity.chatContainer.get(msgs[0].getSender()).messageAdapter.notifyDataSetChanged();
+        //----
+
+
+//        ChatListActivity.chatContainer.get(msgs[0].getSender()).messageList.add(msgs[0]);
+//        ChatListActivity.chatContainer.get(msgs[0].getSender()).messageAdapter.notifyDataSetChanged();
+//        ChatListActivity.SaveContainerData();
+
+
+        ChatListActivity.chatHistory.get(msgs[0].getSender()).add(msgs[0]);
+        ChatActivity.NotifyDataSetChange();
+        ChatListActivity.SaveChatHistory();
+
+
+
 //        ChatActivity.messageAdapter.notifyDataSetChanged();
 //        ChatActivity.messageRecycler.smoothScrollToPosition(ChatActivity.messageAdapter.getItemCount());
 //        MessageContainer msgContainer = ChatListActivity.chatContainer.get(msgs[0].getReceiver());

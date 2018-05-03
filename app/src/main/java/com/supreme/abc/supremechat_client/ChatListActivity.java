@@ -1,17 +1,19 @@
 package com.supreme.abc.supremechat_client;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.widget.ImageView;
-import android.widget.ListView;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -32,68 +34,63 @@ import network_data.MessagePacket;
 
 public class ChatListActivity extends AppCompatActivity {
 
-    ImageView senderPic;
+    private SearchView searchView;
     public static String query;
-    private BottomNavigationView bottomNavigationView;
-    List<MessagePacket> messageList = new ArrayList<>();
-
     private SharedPreferences prefs;
     private SharedPreferences.Editor editor;
-
-    private SearchView searchView;
-    static List<Friend> tempUser = new ArrayList<>();
-    ListView chatListView;
-    //This activity should contain Friends list fragment, and Chats fragment
-    //mainUser MUST be logged in successfully and created to access this activity
-
-    private ChatListAdapter chatListAdapter;
-    public static Hashtable<String, MessageContainer> chatContainer;
-    //    public static Hashtable <String, List<MessagePacket>> chatLists;
-    SharedPreferences sharedPrefs;
+    //public static Hashtable<String, MessageContainer> chatContainer;
+    public static Hashtable<String, List<MessagePacket>> chatHistory;
+    public static ArrayList<String> allChosenFriendsGroup = new ArrayList<>();
+    public static List<Friend> tempUser = new ArrayList<>();
+    public static Context context;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_list);
-//        chatContainer = new Hashtable<>();
 
-//        CHATCONTAINERS
+        context = this;
 
-//        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
-//        Gson gson = new Gson();
-//
-//        String json = appSharedPrefs.getString("chatContainer", "");
-//
-//        Type type = new TypeToken<Hashtable <String, MessageContainer>>() {}.getType();
-//        chatContainer= gson.fromJson(json, type);
-        if (chatContainer == null) {
-            chatContainer = new Hashtable<>();
-        }
+        //ReloadContainerData();
+        ReloadChatHistory();
+
+        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
+
+        bottomNavigationView.setOnNavigationItemSelectedListener
+                (new BottomNavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        Fragment selectedFragment = null;
+                        switch (item.getItemId()) {
+                            case R.id.action_item1:
+                                selectedFragment = ItemOneFragment.newInstance();
+                                break;
+                            case R.id.action_item2:
+                                selectedFragment = ItemTwoFragment.newInstance();
+                                break;
+                            case R.id.action_item3:
+                                selectedFragment = ItemThreeFragment.newInstance();
+                                break;
+                        }
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                        transaction.replace(R.id.frame_layout, selectedFragment);
+                        transaction.commit();
+                        return true;
+                    }
+                });
+        //Manually displaying the first fragment - one time only
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_layout, ItemOneFragment.newInstance());
+        transaction.commit();
 
 
-//        CHATLISTS
-//        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
-//        Gson gson = new Gson();
-//
-//        String json = appSharedPrefs.getString("chatLists", "");
-//
-//        Type type = new TypeToken<Hashtable<String, List<MessagePacket>>>() {}.getType();
-//        chatLists= gson.fromJson(json, type);
-//        if(chatLists==null){
-//            chatLists = new Hashtable<>();
-//        }
-
-
+        //ntainer = new Hashtable<>();
         ///SETUP///////////////////////////////////////
         //Sync Friends IPs from server
         AsyncTasks.SyncFriendsIPs();
         new UpdateFriendListGUI().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        //AsyncTasks.startListeningToClients();
         Network.instance.StartHeartbeatService();
-        //AsyncTasks.ListenToMSGs();
-        ////////////////////////////////////////////////
-        //listen.delegate=this;
 
         AsyncTasks.ListenToMessages();
 
@@ -101,41 +98,68 @@ public class ChatListActivity extends AppCompatActivity {
         editor = getSharedPreferences("ABC_key", MODE_PRIVATE).edit();
         prefs = getSharedPreferences("ABC_key", MODE_PRIVATE);
 
-        setTitle(getIntent().getStringExtra("username"));
-//        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_nav);
-//
-//        bottomNavigationView.setOnNavigationItemSelectedListener(
-//                item -> {
-//                    switch (item.getItemId()) {
-//                        case R.id.bottom_bar_item_calls:
-//                            // TODO
-//                            return true;
-//                        case R.id.bottom_bar_item_recents:
-//                            // TODO
-//                            return true;
-//                        case R.id.bottom_bar_item_trips:
-//                            LogOut();
-//                            return true;
-//                    }
-//                    return false;
-//                }
-//        );
+        //Used to select an item programmatically
+        //bottomNavigationView.getMenu().getItem(2).setChecked(true);
 
-        //getActionBar().setIcon(R.drawable.my_icon);
-
-        chatListView = (ListView) findViewById(R.id.list);
-
-
-        chatListAdapter = new ChatListAdapter(this, tempUser);
-
-        chatListView.setAdapter(chatListAdapter);
-
-        chatListView.setOnItemClickListener((adapterView, view, position, l) -> {
-            Friend friend = chatListAdapter.getItem(position);
-            startActivity(new Intent(getApplicationContext(), ChatActivity.class).putExtra("Friend", friend));
-        });
     }
 
+//    public static void ReloadContainerData(){
+//        //CHATCONTAINERS
+//
+//        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+//        Gson gson = new Gson();
+//
+//        String json = appSharedPrefs.getString("chatContainer", "");
+//
+//        Type type = new TypeToken<Hashtable <String, MessageContainer>>() {}.getType();
+//        chatContainer= gson.fromJson(json, type);
+//        if (chatContainer == null) {
+//            chatContainer = new Hashtable<>();
+//        }
+//
+//    }
+
+    public static void ReloadChatHistory(){
+        //CHATHSITORY
+
+        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Gson gson = new Gson();
+
+        String json = appSharedPrefs.getString("chatHistory", "");
+
+        Type type = new TypeToken<Hashtable <String, List<MessagePacket>>>() {}.getType();
+        chatHistory= gson.fromJson(json, type);
+        if (chatHistory== null) {
+            chatHistory= new Hashtable<>();
+        }
+
+    }
+
+//    public static void SaveContainerData(){
+//        SharedPreferences settings = context.getSharedPreferences("chatContainer", Context.MODE_PRIVATE);
+//        settings.edit().clear().commit();
+//
+//        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+//        SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
+//        Gson gson = new Gson();
+//        String json = gson.toJson(chatContainer);
+//        prefsEditor.putString("chatContainer", json);
+//        prefsEditor.commit();
+//
+//    }
+
+    public static void SaveChatHistory(){
+        SharedPreferences settings = context.getSharedPreferences("chatHistory", Context.MODE_PRIVATE);
+        settings.edit().clear().commit();
+
+        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(chatHistory);
+        prefsEditor.putString("chatHistory", json);
+        prefsEditor.commit();
+
+    }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -163,11 +187,17 @@ public class ChatListActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Friend already added!", Toast.LENGTH_LONG).show();
                     //chatLists.put(query, new ArrayList<>());
 
-                    chatContainer.put(query, new MessageContainer());
+//                    chatContainer.put(query, new MessageContainer());
+//                    SaveContainerData();
+                    chatHistory.put(query, new ArrayList<>());
+                    SaveChatHistory();
                     return false;
                 }
+                if (!query.equals("") || query != null) {
+                    new PerformSearch().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                }
 
-                new PerformSearch().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
                 return false;
             }
 
@@ -180,30 +210,13 @@ public class ChatListActivity extends AppCompatActivity {
         return true;
     }
 
-    private void LogOut() {
-        editor.putBoolean("keep", false);
-        editor.putString("username", null);
-        editor.apply();
-        tempUser.clear();//reset
-        Network.instance.StopHeartbeatService();
-        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-        finish();
+    public void AddToGroup(View view) {
+        ItemTwoFragment.friendGroup.add(ItemOneFragment.friendGroup);
+        ItemTwoFragment.groupChatListAdapter.notifyDataSetChanged();
+        //findViewById(R.id.add_to_group_button).setVisibility(View.VISIBLE);
     }
 
 
-    public void SaveHashContainer() {
-        SharedPreferences settings = getApplicationContext().getSharedPreferences("chatContainer", Context.MODE_PRIVATE);
-        settings.edit().clear().commit();
-
-        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
-        SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(chatContainer);
-        prefsEditor.putString("chatContainer", json);
-        prefsEditor.apply();
-    }
-
-    //Search and add friend if found
     public class PerformSearch extends AsyncTask<String, Void, Friend> {
         @Override
         protected Friend doInBackground(String... s) {
@@ -223,7 +236,10 @@ public class ChatListActivity extends AppCompatActivity {
                     if (Network.instance.ois.readObject() == Command.success) {
                         friend = (Friend) Network.instance.ois.readObject();
                         //chatLists.put(query, new ArrayList<>());
-                        chatContainer.put(query, new MessageContainer());
+//                        chatContainer.put(query, new MessageContainer());
+//                        SaveContainerData();
+                        chatHistory.put(query, new ArrayList<>());
+                        SaveChatHistory();
                     }
 
                 } catch (Exception ex) {
@@ -242,25 +258,26 @@ public class ChatListActivity extends AppCompatActivity {
                 //chatListAdapter.add(f);
                 User.mainUser.AddFriend(friend.getUsername(), friend);
                 Toast.makeText(getApplicationContext(), "Friend Added!", Toast.LENGTH_LONG).show();
-                chatListView.setAdapter(chatListAdapter);
+                ItemOneFragment.tempUser.add(friend);
+                ItemOneFragment.mAdapter.notifyDataSetChanged();
             } else {
                 Toast.makeText(getApplicationContext(), "User doesn't exist!", Toast.LENGTH_SHORT).show();
             }
         }
     }
-
     public class UpdateFriendListGUI extends AsyncTask<String, Void, Integer> {
         @Override
         protected Integer doInBackground(String... s) {
             for (Map.Entry<String, Friend> entry : Database.instance.LoadFriendList().entrySet()) {
                 tempUser.add(entry.getValue());
+                ItemOneFragment.tempUser.add(entry.getValue());
             }
             return 1;
         }
 
         @Override
         protected void onPostExecute(Integer i) {
-            chatListView.setAdapter(chatListAdapter);
+            ItemOneFragment.mAdapter.notifyDataSetChanged();
         }
     }
 

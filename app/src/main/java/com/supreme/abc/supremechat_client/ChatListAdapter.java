@@ -1,43 +1,94 @@
 package com.supreme.abc.supremechat_client;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.content.Intent;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
 
 import network_data.Friend;
 
-public class ChatListAdapter extends ArrayAdapter<Friend> {
+public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHolder> {
 
-    public ChatListAdapter(Context context, List<Friend> friends )
-    {
-        super(context, 0, friends);
+    private Context context;
+    private List<Friend> personUtils;
+
+    public ChatListAdapter(Context context, List personUtils) {
+        this.context = context;
+        this.personUtils = personUtils;
     }
 
-    @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        // Check if there is an existing list item view (called convertView) that we can reuse,
-        // otherwise, if convertView is null, then inflate a new list item layout.
-        View listItemView = convertView;
-        if (listItemView == null) {
-            listItemView = LayoutInflater.from(getContext()).inflate(R.layout.chat_list_item, parent, false);
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_list_item, parent, false);
+        ViewHolder viewHolder = new ViewHolder(v);
+        return viewHolder;
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        holder.itemView.setTag(personUtils.get(position));
+
+        Friend fr = personUtils.get(position);
+
+        holder.title.setText(fr.getUsername());
+        holder.desc.setText(fr.getLastLogin());
+
+        holder.fr = fr;
+    }
+
+    @Override
+    public int getItemCount() {
+        return personUtils.size();
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder{
+
+        public TextView title;
+        public TextView desc;
+        private ImageView chosenIcon;
+        public Friend fr;
+        private boolean chosen;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+
+            chosen = false;
+
+            title =  itemView.findViewById(R.id.sender_name);
+            desc =  itemView.findViewById(R.id.message_text);
+            chosenIcon = itemView.findViewById(R.id.chosenIcon);
+
+            itemView.setOnClickListener(view -> {
+                Friend fr = (Friend) view.getTag();
+                context.startActivity(new Intent(MyApplication.getAppContext(), ChatActivity.class).putExtra("Friend", fr));
+            });
+
+            itemView.setOnLongClickListener(view -> {
+                LongHoldHandler();
+                return true;
+            });
         }
 
-        Friend currentUser = getItem(position);
-
-        TextView senderTextView = (TextView) listItemView.findViewById(R.id.sender_name);
-        senderTextView.setText(currentUser.getUsername());
-
-        TextView titleTextView = (TextView) listItemView.findViewById(R.id.message_text);
-        titleTextView.setText(currentUser.getUsername());
-
-        return listItemView;
+        private void LongHoldHandler()
+        {
+            if(!chosen)
+            {
+                chosen = true;
+                chosenIcon.setVisibility(View.VISIBLE);
+                ChatListActivity.allChosenFriendsGroup.add(fr.getUsername());
+            }
+            else
+            {
+                chosen = false;
+                chosenIcon.setVisibility(View.GONE);
+                ChatListActivity.allChosenFriendsGroup.remove(fr.getUsername());
+            }
+        }
     }
 }

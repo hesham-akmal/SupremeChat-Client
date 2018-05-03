@@ -1,0 +1,20 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ItemTwoFragment">
+
+
+    <ListView
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        android:id="@+id/groupchat_list"
+        android:layout_below="@id/search"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical" />
+
+
+</RelativeLayout>
+

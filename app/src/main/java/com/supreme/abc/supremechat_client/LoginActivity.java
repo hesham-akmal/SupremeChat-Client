@@ -260,6 +260,7 @@ public class LoginActivity extends AppCompatActivity {
 }
 
     private void StartChatActivity() {
+        //startActivity(new Intent(getApplicationContext(), ChatListActivity.class));
         startActivity(new Intent(getApplicationContext(), ChatListActivity.class));
         StopLoginLoadingScreen();
         finish();

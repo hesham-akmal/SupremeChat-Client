@@ -71,7 +71,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
             itemView.setOnLongClickListener(view -> {
                 LongHoldHandler();
-                return false;
+                return true;
             });
         }
 

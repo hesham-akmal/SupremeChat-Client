@@ -4,20 +4,20 @@
 
     <item
         android:id="@+id/bottom_bar_item_calls"
-        android:icon="@drawable/ic_call_24dp"
-        android:title="Calls"
+        android:icon="@drawable/ic_launcher_background"
+        android:title="Friends"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/bottom_bar_item_recents"
-        android:icon="@drawable/ic_query_builder_24dp"
-        android:title="Recents"
+        android:icon="@drawable/rounded_rectangle_blue"
+        android:title="Group Chat"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/bottom_bar_item_trips"
-        android:icon="@drawable/ic_flight_24dp"
-        android:title="Trips"
+        android:icon="@drawable/rounded_rectangle_purple"
+        android:title="Log out"
         app:showAsAction="ifRoom"/>
 
 </menu>

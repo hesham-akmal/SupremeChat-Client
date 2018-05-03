@@ -8,8 +8,14 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -42,11 +48,17 @@ public class ChatListActivity extends AppCompatActivity {
 
     private SearchView searchView;
     static List<Friend> tempUser = new ArrayList<>();
-    ListView chatListView;
     //This activity should contain Friends list fragment, and Chats fragment
     //mainUser MUST be logged in successfully and created to access this activity
 
-    private ChatListAdapter chatListAdapter;
+    RecyclerView recyclerView;
+    RecyclerView.Adapter mAdapter;
+    RecyclerView.LayoutManager layoutManager;
+
+    public static ArrayList<String> allChosenFriendsGroup = new ArrayList<>();
+
+    //private ListView chatListView;
+    //private ChatListAdapter chatListAdapter;
     public static Hashtable<String, MessageContainer> chatContainer;
     //    public static Hashtable <String, List<MessagePacket>> chatLists;
     SharedPreferences sharedPrefs;
@@ -102,38 +114,35 @@ public class ChatListActivity extends AppCompatActivity {
         prefs = getSharedPreferences("ABC_key", MODE_PRIVATE);
 
         setTitle(getIntent().getStringExtra("username"));
-//        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_nav);
-//
-//        bottomNavigationView.setOnNavigationItemSelectedListener(
-//                item -> {
-//                    switch (item.getItemId()) {
-//                        case R.id.bottom_bar_item_calls:
-//                            // TODO
-//                            return true;
-//                        case R.id.bottom_bar_item_recents:
-//                            // TODO
-//                            return true;
-//                        case R.id.bottom_bar_item_trips:
-//                            LogOut();
-//                            return true;
-//                    }
-//                    return false;
-//                }
-//        );
+        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_nav);
+        bottomNavigationView.setOnNavigationItemSelectedListener(
+                item -> {
+                    switch (item.getItemId()) {
+                        case R.id.bottom_bar_item_calls:
+                            // TODO
+                            return true;
+                        case R.id.bottom_bar_item_recents:
+
+                            for (String a : allChosenFriendsGroup )
+                              Toast.makeText(this, a + " added to group.", Toast.LENGTH_SHORT).show();
+
+                            return true;
+                        case R.id.bottom_bar_item_trips:
+                            LogOut();
+                            return true;
+                    }
+                    return false;
+                }
+        );
 
         //getActionBar().setIcon(R.drawable.my_icon);
 
-        chatListView = (ListView) findViewById(R.id.list);
-
-
-        chatListAdapter = new ChatListAdapter(this, tempUser);
-
-        chatListView.setAdapter(chatListAdapter);
-
-        chatListView.setOnItemClickListener((adapterView, view, position, l) -> {
-            Friend friend = chatListAdapter.getItem(position);
-            startActivity(new Intent(getApplicationContext(), ChatActivity.class).putExtra("Friend", friend));
-        });
+        recyclerView = findViewById(R.id.recycleViewContainer);
+        recyclerView.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        mAdapter = new ChatListAdapter(this, tempUser);
+        recyclerView.setAdapter(mAdapter);
     }
 
 
@@ -193,7 +202,7 @@ public class ChatListActivity extends AppCompatActivity {
 
     public void SaveHashContainer() {
         SharedPreferences settings = getApplicationContext().getSharedPreferences("chatContainer", Context.MODE_PRIVATE);
-        settings.edit().clear().commit();
+        settings.edit().clear().apply();
 
         SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
         SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
@@ -242,7 +251,7 @@ public class ChatListActivity extends AppCompatActivity {
                 //chatListAdapter.add(f);
                 User.mainUser.AddFriend(friend.getUsername(), friend);
                 Toast.makeText(getApplicationContext(), "Friend Added!", Toast.LENGTH_LONG).show();
-                chatListView.setAdapter(chatListAdapter);
+                recyclerView.setAdapter(mAdapter);
             } else {
                 Toast.makeText(getApplicationContext(), "User doesn't exist!", Toast.LENGTH_SHORT).show();
             }
@@ -260,7 +269,7 @@ public class ChatListActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Integer i) {
-            chatListView.setAdapter(chatListAdapter);
+            recyclerView.setAdapter(mAdapter);
         }
     }
 

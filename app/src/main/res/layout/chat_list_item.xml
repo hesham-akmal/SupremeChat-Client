@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -12,44 +13,45 @@
     android:layout_marginBottom="16dp"
     >
 
-    <ImageView
-        android:id="@+id/thumbnail"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="1dp"
-        android:layout_marginTop="1dp"
-        />
-
-
-    <LinearLayout
-        android:id="@+id/ID"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_marginStart="16dp"
-        android:layout_weight="2"
-        android:orientation="vertical"
-        android:layout_marginEnd="16dp">
-
-        <TextView
-            android:id="@+id/sender_name"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/ID"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="Name"
-            android:textColor="@android:color/black"/>
+            android:layout_marginStart="16dp"
+            android:layout_weight="2"
+            android:orientation="vertical"
+            android:layout_marginEnd="16dp">
 
-        <TextView
-            android:id="@+id/message_text"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            tools:text="Hey, how's it going? "
-            android:maxLines="5"
-            android:ellipsize="end"
-            android:textColor="@android:color/black"
-            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"/>/>
+            <TextView
+                android:id="@+id/sender_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:textStyle="bold"
+                android:text="Name"
+                android:textColor="@android:color/black"/>
+
+            <TextView
+                android:id="@+id/message_text"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                tools:text="Online/Offline"
+                android:maxLines="5"
+                android:ellipsize="end"
+                android:textColor="@android:color/black"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"/>
+
+        </LinearLayout>
+
+    <ImageView
+        android:id="@+id/chosenIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:adjustViewBounds="true"
+        android:src="@drawable/ic_flight_24dp"
+        app:srcCompat="@android:drawable/checkbox_on_background" />
+
     </LinearLayout>
-
-
-
-</LinearLayout>

@@ -30,7 +30,7 @@
 //import network_data.Friend;
 //import network_data.MessagePacket;
 //
-//public class ChatListActivity extends AppCompatActivity {
+//public class MainActivity extends AppCompatActivity {
 //
 //    ImageView senderPic;
 //    public static String query;
@@ -46,7 +46,7 @@
 //    //This activity should contain Friends list fragment, and Chats fragment
 //    //mainUser MUST be logged in successfully and created to access this activity
 //
-//    private ChatListAdapter chatListAdapter;
+//    private FriendListAdapter chatListAdapter;
 //    public static Hashtable<String, MessageContainer> chatContainer;
 //    //    public static Hashtable <String, List<MessagePacket>> chatLists;
 //    SharedPreferences sharedPrefs;
@@ -55,7 +55,7 @@
 //    @Override
 //    protected void onCreate(Bundle savedInstanceState) {
 //        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_chat_list);
+//        setContentView(R.layout.activity_friend_list);
 ////        chatContainer = new Hashtable<>();
 //
 ////        CHATCONTAINERS
@@ -126,7 +126,7 @@
 //        chatListView = (ListView) findViewById(R.id.list);
 //
 //
-//        chatListAdapter = new ChatListAdapter(this, tempUser);
+//        chatListAdapter = new FriendListAdapter(this, tempUser);
 //
 //        chatListView.setAdapter(chatListAdapter);
 //
@@ -157,7 +157,7 @@
 //        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 //            @Override
 //            public boolean onQueryTextSubmit(String query) {
-//                ChatListActivity.query = query;
+//                MainActivity.query = query;
 //
 //                if (User.mainUser.checkFriendExist(query)) {
 //                    Toast.makeText(getApplicationContext(), "Friend already added!", Toast.LENGTH_LONG).show();
@@ -216,7 +216,7 @@
 //                    Network.instance.oos.writeObject(Command.search);
 //                    Network.instance.oos.flush();
 //
-//                    Network.instance.oos.writeObject(ChatListActivity.query);
+//                    Network.instance.oos.writeObject(MainActivity.query);
 //                    Network.instance.oos.flush();
 //
 //                    //Success. Username found and pass correct

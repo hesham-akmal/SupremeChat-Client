@@ -44,7 +44,7 @@
             android:maxLines="5"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
             android:textColor="@android:color/black"
-            tools:text="Hey, how's it going? " />
+            tools:text="Last msg here " />
 
     </LinearLayout>
     <ImageView

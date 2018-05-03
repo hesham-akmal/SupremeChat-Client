@@ -1,4 +1,4 @@
-package com.supreme.abc.supremechat_client;
+package com.supreme.abc.supremechat_client.FriendChat;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,23 +9,28 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.supreme.abc.supremechat_client.MainActivity;
+import com.supreme.abc.supremechat_client.MyApplication;
+import com.supreme.abc.supremechat_client.R;
+
 import java.util.List;
 
 import network_data.Friend;
 
-public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHolder> {
+public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.ViewHolder> {
 
     private Context context;
     private List<Friend> personUtils;
+    public static int chosenCount;
 
-    public ChatListAdapter(Context context, List personUtils) {
+    public FriendListAdapter(Context context, List personUtils) {
         this.context = context;
         this.personUtils = personUtils;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_list_item, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.friend_item, parent, false);
         ViewHolder viewHolder = new ViewHolder(v);
         return viewHolder;
     }
@@ -79,16 +84,27 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         {
             if(!chosen)
             {
+                FriendListAdapter.chosenCount++;
+                HandleNewGroupBtn();
                 chosen = true;
                 chosenIcon.setVisibility(View.VISIBLE);
-                ChatListActivity.allChosenFriendsGroup.add(fr.getUsername());
+                MainActivity.allChosenFriendsGroup.add(fr.getUsername());
             }
             else
             {
+                FriendListAdapter.chosenCount--;
+                HandleNewGroupBtn();
                 chosen = false;
                 chosenIcon.setVisibility(View.GONE);
-                ChatListActivity.allChosenFriendsGroup.remove(fr.getUsername());
+                MainActivity.allChosenFriendsGroup.remove(fr.getUsername());
             }
+        }
+
+        private void HandleNewGroupBtn(){
+            if(FriendListAdapter.chosenCount >= 2)
+                FriendListFrag.new_group_fab.setVisibility(View.VISIBLE);
+            else
+                FriendListFrag.new_group_fab.setVisibility(View.GONE);
         }
     }
 }

@@ -3,13 +3,16 @@ package com.supreme.abc.supremechat_client.Networking;
 import android.os.AsyncTask;
 import android.util.Log;
 
-//import com.supreme.abc.supremechat_client.ChatListActivity;
+//import com.supreme.abc.supremechat_client.MainActivity;
 //import com.supreme.abc.supremechat_client.MessageContainer;
-import com.supreme.abc.supremechat_client.ChatActivity;
-import com.supreme.abc.supremechat_client.ChatListActivity;
+import com.supreme.abc.supremechat_client.FriendChat.ChatActivity;
+import com.supreme.abc.supremechat_client.GroupChat.FriendGroup;
+import com.supreme.abc.supremechat_client.GroupChat.GroupListFrag;
+import com.supreme.abc.supremechat_client.MainActivity;
 import com.supreme.abc.supremechat_client.User;
 
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 import network_data.Command;
@@ -37,7 +40,14 @@ public class AsyncTasks {
 
     public static void ListenToMessages(){
         new ListenToMessages().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
 
+    public static void SendGroupInvServer(ArrayList<String> allFriendsNames){
+        new SendGroupInvServer(allFriendsNames).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    public static void ListenToGroupCreation(){
+        new ListenToGroupCreation().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 }
 
@@ -89,13 +99,11 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
 
             synchronized (Network.instance.NetLock) {
                 try {
-
                     Network.instance.socket.setSoTimeout(10);
-                    Log.v("XXX", "LISTEN TO MSGS");
+                    //Log.v("XXX", "LISTEN TO MSGS");
                     MessagePacket mp = (MessagePacket) Network.instance.ois.readObject();
-                    Log.v("XXX", "MSG: " + mp.getText() + " From " + mp.getSender());
+                    //Log.v("XXX", "MSG: " + mp.getText() + " From " + mp.getSender());
                     publishProgress(mp);
-                    //new ListenToMessages().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //starts listening again for next msg
 
                 } catch (Exception e) {
                 } finally {
@@ -111,83 +119,11 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
 
     @Override
     protected void onProgressUpdate(MessagePacket... msgs) {
-
-        //ChatListActivity.chatLists.get(msgs[0].getSender()).add(msgs[0]);
-
-        //Uncomment this if  main2 fails----
-        //ChatListActivity.chatContainer.get(msgs[0].getSender()).messageList.add(msgs[0]);
-        //ChatListActivity.chatContainer.get(msgs[0].getSender()).messageAdapter.notifyDataSetChanged();
-        //----
-
-
-//        ChatListActivity.chatContainer.get(msgs[0].getSender()).messageList.add(msgs[0]);
-//        ChatListActivity.chatContainer.get(msgs[0].getSender()).messageAdapter.notifyDataSetChanged();
-//        ChatListActivity.SaveContainerData();
-
-
-        ChatListActivity.chatHistory.get(msgs[0].getSender()).add(msgs[0]);
+        MainActivity.chatHistory.get(msgs[0].getSender()).add(msgs[0]);
         ChatActivity.NotifyDataSetChange();
-        ChatListActivity.SaveChatHistory();
-
-
-
-//        ChatActivity.messageAdapter.notifyDataSetChanged();
-//        ChatActivity.messageRecycler.smoothScrollToPosition(ChatActivity.messageAdapter.getItemCount());
-//        MessageContainer msgContainer = ChatListActivity.chatContainer.get(msgs[0].getReceiver());
-//        msgContainer.messageList.add(msgs[0]);
-//        msgContainer.messageAdapter.notifyDataSetChanged();
-//        msgContainer.recyclerView.smoothScrollToPosition(msgContainer.messageAdapter.getItemCount());
-
+        MainActivity.SaveChatHistory();
     }
 }
-
-//
-//class ListenToMSGs extends AsyncTask<String, Void, MessagePacket> {
-//    public AsyncResponse delegate = null;
-//    @Override
-//    protected MessagePacket doInBackground(String... s) {
-//
-//        while (true)
-//        {
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//
-//            synchronized (Network.instance.NetLock)
-//            {
-//                try
-//                {
-//                    Network.instance.socket.setSoTimeout(10);
-//                    Log.v("XXX", "LISTEN TO MSGS");
-//                    MessagePacket mp = (MessagePacket) Network.instance.ois.readObject();
-//                    Log.v("XXX", "MSG: " + mp.getText() + " From " + mp.getSender());
-//                    new ListenToMSGs().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); //starts listening again for next msg
-//                    return mp;
-//                } catch (Exception e) {
-//                }finally {
-//                    try {
-//                        Network.instance.socket.setSoTimeout(0);
-//                    } catch (SocketException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    @Override
-//    protected void onPostExecute(MessagePacket mp) {
-//
-//        if (mp != null) {
-//            delegate.processFinish(mp);
-//        }
-//        else {
-//
-//        }
-//    }
-//}
 
 class SendMSG extends AsyncTask<String, Void, Void> {
 
@@ -222,31 +158,62 @@ class SendMSG extends AsyncTask<String, Void, Void> {
     }
 }
 
-/*class ListenToClients extends AsyncTask<String, Void, Void> {
+class SendGroupInvServer extends AsyncTask<String, Void, Void> {
+
+    private ArrayList<String> allFriendsNames;
+
+    public SendGroupInvServer(ArrayList<String> allFriendsNames){
+        this.allFriendsNames = allFriendsNames;
+    }
+
     @Override
     protected Void doInBackground(String... s) {
 
-        ServerSocket server = null;
+        synchronized(Network.instance.NetLock) {
 
-        try {
-
-            server = new ServerSocket(FriendServer.FriendPort);
-
-            while (true) {
-                Log.v("XXX", "Waiting for client to connect..");
-                new FriendServer(server.accept());
-            }
-        } catch (IOException var10) {
-            System.out.println("Unable to start server.");
-        } finally {
             try {
-                if (server != null) {
-                    server.close();
-                }
-            } catch (IOException var9) {
-                var9.printStackTrace();
+                Network.instance.oos.writeObject(Command.createNewGroup);
+                Network.instance.oos.flush();
+
+                Network.instance.oos.writeObject(allFriendsNames);
+                Network.instance.oos.flush();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            return null;
+        }
+        return null;
+    }
+}
+
+class ListenToGroupCreation extends AsyncTask<String, Void, Void> {
+    @Override
+    protected Void doInBackground(String... s) {
+        while (true)
+        {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            synchronized (Network.instance.NetLock)
+            {
+                try
+                {
+                    Network.instance.socket.setSoTimeout(10);
+
+                    if( Network.instance.ois.readObject() == Command.createNewGroup )
+                        GroupListFrag.addFriendGroup( new FriendGroup( ( ArrayList<Friend>) Network.instance.ois.readObject() ) );
+
+                } catch (Exception e) {
+                } finally {
+                    try {
+                        Network.instance.socket.setSoTimeout(0);
+                    } catch (SocketException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
-}*/
+}

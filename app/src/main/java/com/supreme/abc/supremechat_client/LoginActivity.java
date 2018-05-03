@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_login);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -106,7 +106,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
     }
-
 
     private boolean checkLoggedIn() {
         //Check if logged in before ("checkLoggedIn" in sharedPrefs)
@@ -260,8 +259,8 @@ public class LoginActivity extends AppCompatActivity {
 }
 
     private void StartChatActivity() {
-        //startActivity(new Intent(getApplicationContext(), ChatListActivity.class));
-        startActivity(new Intent(getApplicationContext(), ChatListActivity.class));
+        //startActivity(new Intent(getApplicationContext(), MainActivity.class));
+        startActivity(new Intent(getApplicationContext(), MainActivity.class));
         StopLoginLoadingScreen();
         finish();
     }

@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChatListActivity">
+    tools:context=".MainActivity">
 
     <FrameLayout
         android:id="@+id/frame_layout"
@@ -19,12 +19,14 @@
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="visible"
         android:layout_alignParentBottom="true"
         android:background="@color/colorPrimary"
         app:itemBackground="@color/colorPrimary"
         app:itemIconTint="@drawable/selector_bottom_bar_item"
         app:itemTextColor="@drawable/selector_bottom_bar_item"
         app:menu="@menu/bottom_navigation_items"/>
+
 </RelativeLayout>

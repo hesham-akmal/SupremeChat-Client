@@ -79,6 +79,7 @@ public class FriendListFrag extends Fragment {
         //add myself to the group
         MainActivity.allChosenFriendsGroup.add(User.mainUser.getUsername());
         AsyncTasks.SendGroupInvServer(MainActivity.allChosenFriendsGroup);
+        MainActivity.SaveGroupChatHistory();
         //////////////setting title
         /*AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Type Group Name");

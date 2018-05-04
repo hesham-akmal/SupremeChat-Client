@@ -83,6 +83,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
     public static void NotifyDataSetChange() {
         messageAdapter.notifyDataSetChanged();
+
     }
 
 

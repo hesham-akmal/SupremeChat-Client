@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.supreme.abc.supremechat_client.MainActivity;
@@ -31,8 +32,6 @@ public class ChatActivity extends AppCompatActivity {
     private EditText chatBox;
     private Button sendBtn;
     private static Context c;
-    //private Gson gson;
-    //private SharedPreferences appSharedPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,36 +42,14 @@ public class ChatActivity extends AppCompatActivity {
         setTitle(friend.getUsername());
 
 
-        /*appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
-        SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
-        gson = new Gson();*/
-
-        //main2
-        //messageList = MainActivity.chatContainer.get(friend.getUsername()).messageList;
-        //messageAdapter = MainActivity.chatContainer.get(friend.getUsername()).messageAdapter;
-        //--
-
-//        if (MainActivity.chatContainer.get(friend.getUsername()).messageList == null) {
-//            messageList = new ArrayList<>();
-//            messageAdapter = new MessageListAdapter(this, messageList);
-//
-//        } else {
-//            messageList = MainActivity.chatContainer.get(friend.getUsername()).messageList;
-//            messageAdapter = MainActivity.chatContainer.get(friend.getUsername()).messageAdapter;
-//        }
         if (MainActivity.chatHistory.get(friend.getUsername()) == null) {
             messageList = new ArrayList<>();
-
-
         } else {
             messageList = MainActivity.chatHistory.get(friend.getUsername());
-
         }
         messageAdapter = new MessageListAdapter(this, messageList);
-
         if (messageList == null) {
             //messageList = MainActivity.chatLists.get(friend.getUsername());
-
         }
         if (messageAdapter == null) {
             messageAdapter = new MessageListAdapter(this, messageList);
@@ -83,7 +60,6 @@ public class ChatActivity extends AppCompatActivity {
         messageRecycler.setAdapter(messageAdapter);
         messageRecycler.setLayoutManager(new LinearLayoutManager(this));
 
-        //MainActivity.chatContainer.put(friend.getUsername(), new MessageContainer(messageRecycler, messageAdapter, messageList));
 
         sendBtn = (Button) findViewById(R.id.button_chatbox_send);
 
@@ -100,9 +76,10 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
+
     }
 
-    public static void NotifyDataSetChange(){
+    public static void NotifyDataSetChange() {
         messageAdapter.notifyDataSetChanged();
     }
 

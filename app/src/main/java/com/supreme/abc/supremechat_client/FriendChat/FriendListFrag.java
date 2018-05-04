@@ -1,14 +1,18 @@
 package com.supreme.abc.supremechat_client.FriendChat;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.supreme.abc.supremechat_client.GroupChat.GroupListFrag;
@@ -31,6 +35,7 @@ public class FriendListFrag extends Fragment {
     List<MessagePacket> messageList = new ArrayList<>();
     public static List<Friend> tempUser = new ArrayList<>();
     public static FloatingActionButton new_group_fab;
+    //private String m_Text = "";
 
     //public static FriendListAdapter chatListAdapter;
     //public static Hashtable<String, MessageContainer> chatContainer;
@@ -73,8 +78,25 @@ public class FriendListFrag extends Fragment {
     public void CreateNewGroup1(){
         //add myself to the group
         MainActivity.allChosenFriendsGroup.add(User.mainUser.getUsername());
-
         AsyncTasks.SendGroupInvServer(MainActivity.allChosenFriendsGroup);
+        //////////////setting title
+        /*AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Type Group Name");
+        // Set up the input
+        final EditText input = new EditText(getContext());
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+        // Set up the buttons
+        builder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                m_Text = input.getText().toString();
+                AsyncTasks.SendGroupInvServer(MainActivity.allChosenFriendsGroup);
+            }
+        });
+        builder.show();*/
+        /////////////
     }
 }
 

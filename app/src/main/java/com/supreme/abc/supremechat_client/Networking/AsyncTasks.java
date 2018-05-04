@@ -7,6 +7,7 @@ import android.util.Log;
 //import com.supreme.abc.supremechat_client.MessageContainer;
 import com.supreme.abc.supremechat_client.FriendChat.ChatActivity;
 import com.supreme.abc.supremechat_client.GroupChat.FriendGroup;
+import com.supreme.abc.supremechat_client.GroupChat.GroupChatActivity;
 import com.supreme.abc.supremechat_client.GroupChat.GroupListFrag;
 import com.supreme.abc.supremechat_client.MainActivity;
 import com.supreme.abc.supremechat_client.User;
@@ -111,11 +112,8 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
                         FriendGroup friendGroup = new FriendGroup((ArrayList<Friend>) Network.instance.ois.readObject());
                         GroupListFrag.RefreshRecyclerView(friendGroup);
                         String title = "";
-                        for (Friend f : friendGroup.getAllFriends()) {
-                            if ((!f.getUsername().equals(User.mainUser.getUsername())) || !(f.getUsername() == null )) {
-                                title += f.getUsername() + ",";
-                            }
-                        }
+                        for(Friend f : friendGroup.getAllFriends())
+                            title += f.getUsername() + " - ";
                         MainActivity.groupChatHistory.put(title, new ArrayList<>());
                         MainActivity.SaveGroupChatHistory();
                     } else if (c == Command.sendMsg) {
@@ -143,7 +141,27 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
             MainActivity.chatHistory.get(msgs[0].getSender()).add(msgs[0]);
             ChatActivity.NotifyDataSetChange();
             MainActivity.SaveChatHistory();
-        } else {
+        } else if(msgs[0].IsGroupMSG()){
+            List<String> recievers = msgs[0].getListOfRecievers();
+
+            String title ="";
+            for(String s : recievers)
+                title += s + " - ";
+            if(!MainActivity.groupChatHistory.containsKey(title)){
+                MainActivity.groupChatHistory.put(title, new ArrayList<>());
+                MainActivity.groupChatHistory.get(title).add(msgs[0]);
+                GroupChatActivity.NotifyDataSetChange();
+                GroupChatActivity.NotifyDataSetChange();
+                MainActivity.SaveGroupChatHistory();
+
+            }else{
+                MainActivity.groupChatHistory.get(title).add(msgs[0]);
+                GroupChatActivity.NotifyDataSetChange();
+                MainActivity.SaveGroupChatHistory();
+            }
+
+
+
 
         }
 

@@ -51,11 +51,10 @@ public class MainActivity extends AppCompatActivity {
 
         context = this;
 
-        //ReloadContainerData();
         ReloadChatHistory();
         ReloadGroupChatHistory();
-        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
 
+        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener
                 (item -> {
                     Fragment selectedFragment = null;

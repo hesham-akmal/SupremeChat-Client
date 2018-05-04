@@ -12,7 +12,7 @@ public class FriendGroup implements Serializable {
 
     public FriendGroup(ArrayList<Friend> allFriends){
         this.allFriends = allFriends;
-        title = "NEw Group";
+        title = "New Group";
     }
 
     public void AddFriend(Friend friend){

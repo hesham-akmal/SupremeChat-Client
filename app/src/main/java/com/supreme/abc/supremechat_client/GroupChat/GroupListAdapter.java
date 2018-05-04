@@ -19,6 +19,7 @@ import network_data.Friend;
 public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.ViewHolder> {
 
     private Context context;
+    String allFriendNamesInsideGroup = "";
     private List<FriendGroup> allFriendGroups;
 
     public GroupListAdapter(Context context, List personUtils) {
@@ -41,7 +42,7 @@ public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.View
 
         holder.title.setText(fg.title);
 
-        String allFriendNamesInsideGroup = "";
+
         for(Friend f : fg.getAllFriends())
             allFriendNamesInsideGroup += f.getUsername() + " - ";
 
@@ -66,7 +67,10 @@ public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.View
 
             itemView.setOnClickListener(view -> {
                 FriendGroup  friendGroup = (FriendGroup) view.getTag();
-                context.startActivity(new Intent(MyApplication.getAppContext(), GroupChatActivity.class).putExtra("FriendGroup", friendGroup));
+                Intent i = new Intent(MyApplication.getAppContext(), GroupChatActivity.class);
+                i.putExtra("FriendGroup", friendGroup);
+                i.putExtra("title", allFriendNamesInsideGroup);
+                context.startActivity(i);
             });
 
 

@@ -40,15 +40,15 @@ public class GroupChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         c = this;
+
         friendGroup = (FriendGroup) getIntent().getSerializableExtra("FriendGroup");
-
-        for (Friend f: friendGroup.getAllFriends()) {
-            if( (!f.getUsername().equals(User.mainUser.getUsername())) || !(f.getUsername() == null)){
-                title+=f.getUsername()+",";
+        title = getIntent().getStringExtra("title");
+        String test = "";
+        for (Friend f : friendGroup.getAllFriends()) {
                 recipients.add(f.getUsername());
-            }
-
+            test += f.getUsername();
         }
+
         setTitle(title);
         if (MainActivity.groupChatHistory.get(title) == null) {
             messageList = new ArrayList<>();
@@ -81,7 +81,7 @@ public class GroupChatActivity extends AppCompatActivity {
         });
     }
 
-    public static void NotifyDataSetChange(){
+    public static void NotifyDataSetChange() {
         messageAdapter.notifyDataSetChanged();
     }
 

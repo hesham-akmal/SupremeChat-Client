@@ -45,10 +45,6 @@ public class AsyncTasks {
     public static void SendGroupInvServer(ArrayList<String> allFriendsNames){
         new SendGroupInvServer(allFriendsNames).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
-
-    public static void ListenToGroupCreation(){
-        new ListenToGroupCreation().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
 }
 
 //class checkConnection extends AsyncTask<Void, Void, Boolean>{
@@ -90,7 +86,8 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
     @Override
     protected Void doInBackground(String... s) {
 
-        while (true) {
+        while (true)
+        {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -100,10 +97,19 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
             synchronized (Network.instance.NetLock) {
                 try {
                     Network.instance.socket.setSoTimeout(10);
-                    //Log.v("XXX", "LISTEN TO MSGS");
-                    MessagePacket mp = (MessagePacket) Network.instance.ois.readObject();
-                    //Log.v("XXX", "MSG: " + mp.getText() + " From " + mp.getSender());
-                    publishProgress(mp);
+                    Log.v("XXX", "LISTEN TO MSGS");
+
+                    //
+                    if ( Network.instance.ois.readObject() == Command.createNewGroup)
+                    {
+                        Log.v("XXX","22222222222222222222222222222222222");
+                        GroupListFrag.RefreshRecyclerView(new FriendGroup( ( ArrayList<Friend>) Network.instance.ois.readObject() ));
+                    } else
+                    {
+                        MessagePacket mp = (MessagePacket) Network.instance.ois.readObject();
+                        //Log.v("XXX", "MSG: " + mp.getText() + " From " + mp.getSender());
+                        publishProgress(mp);
+                    }
 
                 } catch (Exception e) {
                 } finally {
@@ -177,43 +183,13 @@ class SendGroupInvServer extends AsyncTask<String, Void, Void> {
 
                 Network.instance.oos.writeObject(allFriendsNames);
                 Network.instance.oos.flush();
+
+                //reset
+                MainActivity.allChosenFriendsGroup.clear();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         return null;
-    }
-}
-
-class ListenToGroupCreation extends AsyncTask<String, Void, Void> {
-    @Override
-    protected Void doInBackground(String... s) {
-        while (true)
-        {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            synchronized (Network.instance.NetLock)
-            {
-                try
-                {
-                    Network.instance.socket.setSoTimeout(10);
-
-                    if( Network.instance.ois.readObject() == Command.createNewGroup )
-                        GroupListFrag.addFriendGroup( new FriendGroup( ( ArrayList<Friend>) Network.instance.ois.readObject() ) );
-
-                } catch (Exception e) {
-                } finally {
-                    try {
-                        Network.instance.socket.setSoTimeout(0);
-                    } catch (SocketException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
     }
 }

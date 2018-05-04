@@ -32,8 +32,6 @@ public class GroupChatActivity extends AppCompatActivity {
     private EditText chatBox;
     private Button sendBtn;
     private static Context c;
-    //private Gson gson;
-    //private SharedPreferences appSharedPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +43,7 @@ public class GroupChatActivity extends AppCompatActivity {
         title = getIntent().getStringExtra("title");
         String test = "";
         for (Friend f : friendGroup.getAllFriends()) {
-                recipients.add(f.getUsername());
+            recipients.add(f.getUsername());
             test += f.getUsername();
         }
 
@@ -82,9 +80,9 @@ public class GroupChatActivity extends AppCompatActivity {
     }
 
     public static void NotifyDataSetChange() {
+        if(messageAdapter == null)
+            return;
+
         messageAdapter.notifyDataSetChanged();
-
     }
-
-
 }

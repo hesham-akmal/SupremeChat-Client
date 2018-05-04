@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences prefs;
     private SharedPreferences.Editor editor;
     public static Hashtable<String, List<MessagePacket>> chatHistory;
+    public static Hashtable<String, List<MessagePacket>> groupChatHistory;
     public static ArrayList<String> allChosenFriendsGroup = new ArrayList<>();
     public static List<Friend> tempUser = new ArrayList<>();
     public static Context context;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
         //ReloadContainerData();
         ReloadChatHistory();
-
+        ReloadGroupChatHistory();
         BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
 
         bottomNavigationView.setOnNavigationItemSelectedListener
@@ -128,19 +129,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+    public static void ReloadGroupChatHistory(){
+        //CHATHSITORY
 
-//    public static void SaveContainerData(){
-//        SharedPreferences settings = context.getSharedPreferences("chatContainer", Context.MODE_PRIVATE);
-//        settings.edit().clear().commit();
-//
-//        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-//        SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
-//        Gson gson = new Gson();
-//        String json = gson.toJson(chatContainer);
-//        prefsEditor.putString("chatContainer", json);
-//        prefsEditor.commit();
-//
-//    }
+        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Gson gson = new Gson();
+
+        String json = appSharedPrefs.getString("groupChatHistory", "");
+
+        Type type = new TypeToken<Hashtable <String, List<MessagePacket>>>() {}.getType();
+        groupChatHistory= gson.fromJson(json, type);
+        if (groupChatHistory== null) {
+            groupChatHistory= new Hashtable<>();
+        }
+
+    }
 
     public static void SaveChatHistory(){
         SharedPreferences settings = context.getSharedPreferences("chatHistory", Context.MODE_PRIVATE);
@@ -154,6 +157,20 @@ public class MainActivity extends AppCompatActivity {
         prefsEditor.commit();
 
     }
+
+    public static void SaveGroupChatHistory(){
+        SharedPreferences settings = context.getSharedPreferences("groupChatHistory", Context.MODE_PRIVATE);
+        settings.edit().clear().commit();
+
+        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(groupChatHistory);
+        prefsEditor.putString("groupChatHistory", json);
+        prefsEditor.commit();
+
+    }
+
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -247,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (friend != null) {
                 //Friend f = new Friend(friend.getUsername(), friend.getStatus(), friend.getLastLogin(), friend.getIP());
-                tempUser.add(friend);
+                //tempUser.add(friend);
                 //chatListAdapter.add(f);
                 User.mainUser.AddFriend(friend.getUsername(), friend);
                 Toast.makeText(getApplicationContext(), "Friend Added!", Toast.LENGTH_LONG).show();

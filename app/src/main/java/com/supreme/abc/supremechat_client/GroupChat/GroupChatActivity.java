@@ -1,7 +1,6 @@
-package com.supreme.abc.supremechat_client.FriendChat;
+package com.supreme.abc.supremechat_client.GroupChat;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,7 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.google.gson.Gson;
 import com.supreme.abc.supremechat_client.MainActivity;
 import com.supreme.abc.supremechat_client.MessageListAdapter;
 import com.supreme.abc.supremechat_client.Networking.AsyncTasks;
@@ -22,11 +20,14 @@ import java.util.List;
 import network_data.Friend;
 import network_data.MessagePacket;
 
-public class ChatActivity extends AppCompatActivity {
+public class GroupChatActivity extends AppCompatActivity {
 
     private RecyclerView messageRecycler;
     private static MessageListAdapter messageAdapter;
     public List<MessagePacket> messageList;
+    public List<String> recipients = new ArrayList<>();
+    public String title;
+    public FriendGroup friendGroup;
     static Friend friend;
     private EditText chatBox;
     private Button sendBtn;
@@ -39,44 +40,22 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         c = this;
-        friend = (Friend) getIntent().getSerializableExtra("Friend");
-        setTitle(friend.getUsername());
+        friendGroup = (FriendGroup) getIntent().getSerializableExtra("FriendGroup");
 
+        for (Friend f: friendGroup.getAllFriends()) {
+            if( (!f.getUsername().equals(User.mainUser.getUsername())) || !(f.getUsername() == null)){
+                title+=f.getUsername()+",";
+                recipients.add(f.getUsername());
+            }
 
-        /*appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
-        SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
-        gson = new Gson();*/
-
-        //main2
-        //messageList = MainActivity.chatContainer.get(friend.getUsername()).messageList;
-        //messageAdapter = MainActivity.chatContainer.get(friend.getUsername()).messageAdapter;
-        //--
-
-//        if (MainActivity.chatContainer.get(friend.getUsername()).messageList == null) {
-//            messageList = new ArrayList<>();
-//            messageAdapter = new MessageListAdapter(this, messageList);
-//
-//        } else {
-//            messageList = MainActivity.chatContainer.get(friend.getUsername()).messageList;
-//            messageAdapter = MainActivity.chatContainer.get(friend.getUsername()).messageAdapter;
-//        }
-        if (MainActivity.chatHistory.get(friend.getUsername()) == null) {
+        }
+        setTitle(title);
+        if (MainActivity.groupChatHistory.get(title) == null) {
             messageList = new ArrayList<>();
-
-
         } else {
-            messageList = MainActivity.chatHistory.get(friend.getUsername());
-
+            messageList = MainActivity.groupChatHistory.get(title);
         }
         messageAdapter = new MessageListAdapter(this, messageList);
-
-        if (messageList == null) {
-            //messageList = MainActivity.chatLists.get(friend.getUsername());
-
-        }
-        if (messageAdapter == null) {
-            messageAdapter = new MessageListAdapter(this, messageList);
-        }
 
 
         messageRecycler = (RecyclerView) findViewById(R.id.reyclerview_message_list);
@@ -92,8 +71,8 @@ public class ChatActivity extends AppCompatActivity {
         sendBtn.setOnClickListener(v -> {
             if (chatBox.getText() != null || !chatBox.getText().equals("")) {
                 String text = chatBox.getText().toString();
-                AsyncTasks.SendMSGtoClient(friend.getUsername(), text);
-                messageList.add(new MessagePacket(User.mainUser.getUsername(), friend.getUsername(), chatBox.getText().toString(), false));
+                AsyncTasks.SendGroupMSGtoClient(recipients, text);
+                messageList.add(new MessagePacket(User.mainUser.getUsername(), recipients, chatBox.getText().toString(), true));
                 messageAdapter.notifyDataSetChanged();
                 messageRecycler.smoothScrollToPosition(messageAdapter.getItemCount());
                 chatBox.setText("");

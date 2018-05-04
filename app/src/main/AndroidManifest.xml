@@ -21,6 +21,7 @@
         </activity>
         <activity android:name=".FriendChat.ChatActivity" />
         <activity android:name=".MainActivity" />
+        <activity android:name=".GroupChat.GroupChatActivity" />
     </application>
 
 </manifest>

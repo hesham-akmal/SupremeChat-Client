@@ -1,12 +1,15 @@
 package com.supreme.abc.supremechat_client.GroupChat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.supreme.abc.supremechat_client.FriendChat.ChatActivity;
+import com.supreme.abc.supremechat_client.MyApplication;
 import com.supreme.abc.supremechat_client.R;
 
 import java.util.List;
@@ -62,9 +65,11 @@ public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.View
             desc =  itemView.findViewById(R.id.message_text);
 
             itemView.setOnClickListener(view -> {
-                //Friend fr = (Friend) view.getTag();
-                //context.startActivity(new Intent(MyApplication.getAppContext(), ChatActivity.class)//.putExtra("Friend", fr));
+                FriendGroup  friendGroup = (FriendGroup) view.getTag();
+                context.startActivity(new Intent(MyApplication.getAppContext(), GroupChatActivity.class).putExtra("FriendGroup", friendGroup));
             });
+
+
 
             //itemView.setOnLongClickListener(view -> {
             //   return true;

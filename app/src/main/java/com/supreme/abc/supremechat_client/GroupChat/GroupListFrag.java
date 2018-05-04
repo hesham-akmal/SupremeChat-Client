@@ -24,7 +24,7 @@ public class GroupListFrag extends Fragment {
     private static RecyclerView recyclerView;
     public static RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
-    private static List<FriendGroup> allFriendGroups = new ArrayList<>();
+    public static List<FriendGroup> allFriendGroups = new ArrayList<>();
     ////////////
 
     //List<MessagePacket> messageList = new ArrayList<>();
@@ -56,16 +56,10 @@ public class GroupListFrag extends Fragment {
         return rootView;
     }
 
-    public static void addFriendGroup(FriendGroup fg){
-        Log.v("XXX","NEW FG ADDED: ");
-
-        for(Friend f : fg.getAllFriends())
-            Log.v("XXX",f.getUsername());
-
-        allFriendGroups.add(fg);
-        mAdapter = new GroupListAdapter(MainActivity.context, allFriendGroups);
-        recyclerView.setAdapter(mAdapter);
-        Log.v("XXX","3"); //doesnt reach here for some reason
+    public static void RefreshRecyclerView(FriendGroup fg){
+        GroupListFrag.allFriendGroups.add(fg);
+        mAdapter.notifyDataSetChanged();
+        Log.v("XXX","333333333333333333333333333333333333333333333333333333333333333333333333"); //doesnt reach here for some reason
     }
 
     public static List<FriendGroup> getAllFriendGroups(){

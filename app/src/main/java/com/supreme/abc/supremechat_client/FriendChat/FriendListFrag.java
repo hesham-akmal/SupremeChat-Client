@@ -12,9 +12,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.supreme.abc.supremechat_client.GroupChat.GroupListFrag;
+import com.supreme.abc.supremechat_client.ItemThreeFragment;
 import com.supreme.abc.supremechat_client.MainActivity;
 import com.supreme.abc.supremechat_client.Networking.AsyncTasks;
 import com.supreme.abc.supremechat_client.R;
+import com.supreme.abc.supremechat_client.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,14 +71,10 @@ public class FriendListFrag extends Fragment {
     }
 
     public void CreateNewGroup1(){
-        AsyncTasks.SendGroupInvServer(MainActivity.allChosenFriendsGroup);
+        //add myself to the group
+        MainActivity.allChosenFriendsGroup.add(User.mainUser.getUsername());
 
-        //go to group frag
-        Fragment selectedFragment = GroupListFrag.newInstance();
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frame_layout, selectedFragment);
-        transaction.commit();
-        //////////////
+        AsyncTasks.SendGroupInvServer(MainActivity.allChosenFriendsGroup);
     }
 }
 

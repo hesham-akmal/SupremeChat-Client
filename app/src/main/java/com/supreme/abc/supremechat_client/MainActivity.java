@@ -88,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
         Network.instance.StartHeartbeatService();
 
         AsyncTasks.ListenToMessages();
-        AsyncTasks.ListenToGroupCreation();
 
         editor = getSharedPreferences("ABC_key", MODE_PRIVATE).edit();
         prefs = getSharedPreferences("ABC_key", MODE_PRIVATE);

@@ -13,6 +13,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -48,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
     public static List<FriendGroup> friendGroups = new ArrayList<>();
     public static Context context;
 
+    private RelativeLayout rl;
+
     public static BottomNavigationView bottomNavigationView;
 
     @Override
@@ -56,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_friend_list);
 
         context = this;
+
+        rl = findViewById(R.id.activity_main);
 
         ReloadChatHistory();
         ReloadGroupChatHistory();
@@ -215,8 +221,7 @@ public class MainActivity extends AppCompatActivity {
                 if (User.mainUser.checkFriendExist(query)) {
                     Toast.makeText(getApplicationContext(), "Friend already added!", Toast.LENGTH_LONG).show();
                     chatHistory.put(query, new ArrayList<>());
-                    searchView.setQuery("", false);
-                    searchView.clearFocus();
+                    clearFocusSearchBar();
                     SaveChatHistory();
                     return false;
                 }
@@ -237,7 +242,12 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-
+private void clearFocusSearchBar(){
+    searchView.setQuery("", false);
+    searchView.clearFocus();
+    rl.requestFocus();
+    //searchView.onActionViewCollapsed();
+}
 //    public void AddToGroup(View view) {
 //        //GroupListFrag.friendGroup.add(FriendListFrag.friendGroup);
 //        //GroupListFrag.groupChatListAdapter.notifyDataSetChanged();
@@ -285,6 +295,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Friend Added!", Toast.LENGTH_LONG).show();
                 FriendListFrag.tempUser.add(friend);
                 FriendListFrag.mAdapter.notifyDataSetChanged();
+                clearFocusSearchBar();
             } else {
                 Toast.makeText(getApplicationContext(), "User doesn't exist!", Toast.LENGTH_SHORT).show();
             }

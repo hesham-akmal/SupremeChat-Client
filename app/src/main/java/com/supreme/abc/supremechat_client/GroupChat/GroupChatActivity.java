@@ -24,10 +24,10 @@ public class GroupChatActivity extends AppCompatActivity {
 
     private static RecyclerView messageRecycler;
     private static MessageListAdapter messageAdapter;
-    public List<MessagePacket> messageList;
+    public  List<MessagePacket> messageList;
     public List<String> recipients = new ArrayList<>();
     public String title;
-    public FriendGroup friendGroup;
+    public static FriendGroup friendGroup;
     static Friend friend;
     private EditText chatBox;
     private Button sendBtn;
@@ -47,9 +47,9 @@ public class GroupChatActivity extends AppCompatActivity {
         }
 
         setTitle(title);
-        if (MainActivity.groupChatHistory.get(title) == null) {
+        if (MainActivity.groupChatHistory.get(title) == null || MainActivity.groupChatHistory.size() == 0) {
+            MainActivity.groupChatHistory.put(friendGroup.getFriendGroupName(), new ArrayList<>());
             messageList = new ArrayList<>();
-
         } else {
             messageList = MainActivity.groupChatHistory.get(title);
         }
@@ -73,7 +73,7 @@ public class GroupChatActivity extends AppCompatActivity {
                 //messageList.add(new MessagePacket(User.mainUser.getUsername(), recipients, chatBox.getText().toString(), true));
                 //messageAdapter.notifyDataSetChanged();
                 //messageRecycler.smoothScrollToPosition(messageAdapter.getItemCount());
-                NotifyDataSetChange();
+                //NotifyDataSetChange();
                 chatBox.setText("");
             }
         });
@@ -81,6 +81,11 @@ public class GroupChatActivity extends AppCompatActivity {
 
     public static void NotifyDataSetChange() {
         if (messageAdapter == null) {
+            if (friendGroup != null) {
+
+                messageAdapter = new MessageListAdapter(c, MainActivity.groupChatHistory.get(friendGroup.getFriendGroupName()));
+            }
+
             System.out.println("messageAdapter == null");
             return;
         }

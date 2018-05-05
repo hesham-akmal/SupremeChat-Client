@@ -119,6 +119,7 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
 
                         if (!GroupListFrag.allFriendGroupsNames.contains(friendGroup.getFriendGroupName())) {
                             User.mainUser.AddFriendGroup(friendGroup.getFriendGroupName(), friendGroup);
+                            MainActivity.groupChatHistory.put(friendGroup.getFriendGroupName(), new ArrayList<>());
                             MainActivity.friendGroups.add(friendGroup);
                             GroupListFrag.RefreshRecyclerView(friendGroup);
                         }

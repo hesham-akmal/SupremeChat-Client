@@ -47,14 +47,8 @@ public class ChatActivity extends AppCompatActivity {
         } else {
             messageList = MainActivity.chatHistory.get(friend.getUsername());
         }
-        messageAdapter = new MessageListAdapter(this, messageList);
-        if (messageList == null) {
-            //messageList = MainActivity.chatLists.get(friend.getUsername());
-        }
-        if (messageAdapter == null) {
-            messageAdapter = new MessageListAdapter(this, messageList);
-        }
 
+        messageAdapter = new MessageListAdapter(this, messageList);
 
         messageRecycler = (RecyclerView) findViewById(R.id.reyclerview_message_list);
         messageRecycler.setAdapter(messageAdapter);

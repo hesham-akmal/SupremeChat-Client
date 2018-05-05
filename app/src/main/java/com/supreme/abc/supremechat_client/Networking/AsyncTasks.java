@@ -3,6 +3,7 @@ package com.supreme.abc.supremechat_client.Networking;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 //import com.supreme.abc.supremechat_client.MainActivity;
@@ -127,6 +128,9 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
                             title += f.getUsername() + " - ";
                         MainActivity.groupChatHistory.put(title, new ArrayList<>());
                         MainActivity.SaveGroupChatHistory();
+
+
+
                     } else if (c == Command.sendMsg) {
                         Log.v("XXX", "GROUP MSG RECEIVED");
                         MessagePacket mp = (MessagePacket) Network.instance.ois.readObject();
@@ -171,6 +175,7 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
                 GroupChatActivity.NotifyDataSetChange();
                 MainActivity.SaveGroupChatHistory();
             }
+
         }
     }
 }
@@ -254,6 +259,8 @@ class SendGroupInvServer extends AsyncTask<String, Void, Void> {
     protected Void doInBackground(String... s) {
 
         synchronized (Network.instance.NetLock) {
+
+            Log.v("XXX", "SENDING GROUP INV");
 
             try {
                 Network.instance.oos.writeObject(Command.createNewGroup);

@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
     public static List<FriendGroup> friendGroups = new ArrayList<>();
     public static Context context;
 
+    public static BottomNavigationView bottomNavigationView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         ReloadChatHistory();
         ReloadGroupChatHistory();
 
-        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
+        bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener
                 (item -> {
                     Fragment selectedFragment = null;
@@ -67,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         case R.id.action_item2:
                             selectedFragment = GroupListFrag.newInstance();
+                            bottomNavigationView.getMenu().getItem(1).setIcon(ContextCompat.getDrawable(context, R.drawable.g1));
                             break;
                         case R.id.action_item3:
                             selectedFragment = ItemThreeFragment.newInstance();
@@ -157,6 +161,15 @@ public class MainActivity extends AppCompatActivity {
         String json = gson.toJson(groupChatHistory);
         prefsEditor.putString("groupChatHistory", json);
         prefsEditor.commit();
+
+        ReceivedGroupINV();
+    }
+
+    public static void ReceivedGroupINV(){
+        //FriendListAdapter.clearAll();
+
+        //return normal group icon
+        bottomNavigationView.getMenu().getItem(1).setIcon(ContextCompat.getDrawable(context, R.drawable.g2));
     }
 
 
@@ -192,6 +205,8 @@ public class MainActivity extends AppCompatActivity {
                 if (!query.equals("") || query != null) {
                     new PerformSearch().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
+
+
                 return false;
             }
 
@@ -200,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
         return true;
     }
 
@@ -272,6 +288,4 @@ public class MainActivity extends AppCompatActivity {
             FriendListFrag.mAdapter.notifyDataSetChanged();
         }
     }
-
-
 }

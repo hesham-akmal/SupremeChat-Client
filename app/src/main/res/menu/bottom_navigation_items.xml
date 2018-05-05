@@ -6,7 +6,7 @@
         android:title="chat"/>
     <item
         android:id="@+id/action_item2"
-        android:icon="@drawable/ic_chat_24dp"
+        android:icon="@drawable/g1"
         android:title="group chat"/>
     <item
         android:id="@+id/action_item3"

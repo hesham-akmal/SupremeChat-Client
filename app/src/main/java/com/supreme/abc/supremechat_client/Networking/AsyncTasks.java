@@ -121,8 +121,9 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
                         MainActivity.groupChatHistory.put(title, new ArrayList<>());
                         MainActivity.SaveGroupChatHistory();
                     } else if (c == Command.sendMsg) {
+                        Log.v("XXX", "GROUP MSG RECEIVED" );
                         MessagePacket mp = (MessagePacket) Network.instance.ois.readObject();
-                        //Log.v("XXX", "MSG: " + mp.getText() + " From " + mp.getSender());
+                        Log.v("XXX", "MSG: " + mp.getText() + " From " + mp.getSender());
                         publishProgress(mp);
                     }
 
@@ -152,11 +153,13 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
                 title += s + " - ";
 
             if(!MainActivity.groupChatHistory.containsKey(title)){
+                Log.v("XXX", "MSG FOR NEW GROUP" );
                 MainActivity.groupChatHistory.put(title, new ArrayList<>());
                 MainActivity.groupChatHistory.get(title).add(msgs[0]);
                 GroupChatActivity.NotifyDataSetChange();
                 MainActivity.SaveGroupChatHistory();
             }else{
+                Log.v("XXX", "MSG FOR OLD GROUP" );
                 MainActivity.groupChatHistory.get(title).add(msgs[0]);
                 GroupChatActivity.NotifyDataSetChange();
                 MainActivity.SaveGroupChatHistory();

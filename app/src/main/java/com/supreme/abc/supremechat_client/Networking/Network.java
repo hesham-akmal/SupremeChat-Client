@@ -14,9 +14,9 @@ public class Network {
 
     public static Network instance = new Network();
 
-    public String MainServerIP = "197.52.159.169"; //Hesham
+    //public String MainServerIP = "197.52.159.169"; //Hesham
     //public String MainServerIP = "supremechatserver1.ddns.net"; //Hesham
-    //public static String MainServerIP = "chat.ddns.net"; //Grey
+    public static String MainServerIP = "chat.ddns.net"; //Grey
 
     public int MainServerPORT = 3000;
     public Socket socket;

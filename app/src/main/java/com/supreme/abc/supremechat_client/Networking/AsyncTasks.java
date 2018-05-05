@@ -110,18 +110,25 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
                     Network.instance.socket.setSoTimeout(10);
                     //Log.v("XXX", "LISTEN TO MSGS");
 
+
                     Command c = (Command) Network.instance.ois.readObject();
                     if (c == Command.createNewGroup) {
-                        Log.v("XXX", "GROUP CREATED RECEIVED" );
+                        Log.v("XXX", "GROUP CREATED RECEIVED");
                         FriendGroup friendGroup = new FriendGroup((ArrayList<Friend>) Network.instance.ois.readObject());
+                        if (!MainActivity.friendGroups.contains(friendGroup.getFriendGroupName())) {
+                            User.mainUser.AddFriendGroup(friendGroup.getFriendGroupName(), friendGroup);
+                            GroupListFrag.RefreshRecyclerView(friendGroup);
+                            new GroupListFrag.UpdateGroupFriendListGUI().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                        }
+
                         GroupListFrag.RefreshRecyclerView(friendGroup);
                         String title = "";
-                        for(Friend f : friendGroup.getAllFriends())
+                        for (Friend f : friendGroup.getAllFriends())
                             title += f.getUsername() + " - ";
                         MainActivity.groupChatHistory.put(title, new ArrayList<>());
                         MainActivity.SaveGroupChatHistory();
                     } else if (c == Command.sendMsg) {
-                        Log.v("XXX", "GROUP MSG RECEIVED" );
+                        Log.v("XXX", "GROUP MSG RECEIVED");
                         MessagePacket mp = (MessagePacket) Network.instance.ois.readObject();
                         Log.v("XXX", "MSG: " + mp.getText() + " From " + mp.getSender());
                         publishProgress(mp);
@@ -146,20 +153,20 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
             MainActivity.chatHistory.get(msgs[0].getSender()).add(msgs[0]);
             ChatActivity.NotifyDataSetChange();
             MainActivity.SaveChatHistory();
-        } else if(msgs[0].IsGroupMSG()){
+        } else if (msgs[0].IsGroupMSG()) {
 
-            String title ="";
-            for(String s : msgs[0].getListOfRecievers())
+            String title = "";
+            for (String s : msgs[0].getListOfRecievers())
                 title += s + " - ";
 
-            if(!MainActivity.groupChatHistory.containsKey(title)){
-                Log.v("XXX", "MSG FOR NEW GROUP" );
+            if (!MainActivity.groupChatHistory.containsKey(title)) {
+                Log.v("XXX", "MSG FOR NEW GROUP");
                 MainActivity.groupChatHistory.put(title, new ArrayList<>());
                 MainActivity.groupChatHistory.get(title).add(msgs[0]);
                 GroupChatActivity.NotifyDataSetChange();
                 MainActivity.SaveGroupChatHistory();
-            }else{
-                Log.v("XXX", "MSG FOR OLD GROUP" );
+            } else {
+                Log.v("XXX", "MSG FOR OLD GROUP");
                 MainActivity.groupChatHistory.get(title).add(msgs[0]);
                 GroupChatActivity.NotifyDataSetChange();
                 MainActivity.SaveGroupChatHistory();
@@ -263,9 +270,5 @@ class SendGroupInvServer extends AsyncTask<String, Void, Void> {
         }
         return null;
     }
-
-
-
-
 
 }

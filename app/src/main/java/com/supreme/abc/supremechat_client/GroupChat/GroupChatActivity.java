@@ -40,11 +40,10 @@ public class GroupChatActivity extends AppCompatActivity {
         c = this;
 
         friendGroup = (FriendGroup) getIntent().getSerializableExtra("FriendGroup");
-        title = getIntent().getStringExtra("title");
-        String test = "";
+        title = friendGroup.getFriendGroupName();
+
         for (Friend f : friendGroup.getAllFriends()) {
             recipients.add(f.getUsername());
-            test += f.getUsername();
         }
 
         setTitle(title);
@@ -80,7 +79,7 @@ public class GroupChatActivity extends AppCompatActivity {
     }
 
     public static void NotifyDataSetChange() {
-        if(messageAdapter == null){
+        if (messageAdapter == null) {
             System.out.println("messageAdapter == null");
             return;
         }

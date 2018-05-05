@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.supreme.abc.supremechat_client.FriendChat.FriendListFrag;
+import com.supreme.abc.supremechat_client.GroupChat.FriendGroup;
 import com.supreme.abc.supremechat_client.GroupChat.GroupListFrag;
 import com.supreme.abc.supremechat_client.Networking.AsyncTasks;
 import com.supreme.abc.supremechat_client.Networking.Network;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import network_data.Command;
 import network_data.Friend;
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     public static Hashtable<String, List<MessagePacket>> groupChatHistory;
     public static ArrayList<String> allChosenFriendsGroup = new ArrayList<>();
     public static List<Friend> tempUser = new ArrayList<>();
+    public static List<FriendGroup> friendGroups = new ArrayList<>();
     public static Context context;
 
     @Override
@@ -85,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         AsyncTasks.SyncFriendsIPs();
         new UpdateFriendListGUI().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
+
         Network.instance.StartHeartbeatService();
 
         AsyncTasks.ListenToMessages();
@@ -97,23 +101,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-//    public static void ReloadContainerData(){
-//        //CHATCONTAINERS
-//
-//        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-//        Gson gson = new Gson();
-//
-//        String json = appSharedPrefs.getString("chatContainer", "");
-//
-//        Type type = new TypeToken<Hashtable <String, MessageContainer>>() {}.getType();
-//        chatContainer= gson.fromJson(json, type);
-//        if (chatContainer == null) {
-//            chatContainer = new Hashtable<>();
-//        }
-//
-//    }
 
-    public static void ReloadChatHistory(){
+    public static void ReloadChatHistory() {
         //CHATHSITORY
 
         SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -121,13 +110,14 @@ public class MainActivity extends AppCompatActivity {
 
         String json = appSharedPrefs.getString("chatHistory", "");
 
-        Type type = new TypeToken<Hashtable <String, List<MessagePacket>>>() {}.getType();
-        chatHistory= gson.fromJson(json, type);
-        if (chatHistory== null) {
-            chatHistory= new Hashtable<>();
+        Type type = new TypeToken<Hashtable<String, List<MessagePacket>>>() {
+        }.getType();
+        chatHistory = gson.fromJson(json, type);
+        if (chatHistory == null) {
+            chatHistory = new Hashtable<>();
         }
-
     }
+
     public static void ReloadGroupChatHistory(){
         //CHATHSITORY
 
@@ -144,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public static void SaveChatHistory(){
+    public static void SaveChatHistory() {
         SharedPreferences settings = context.getSharedPreferences("chatHistory", Context.MODE_PRIVATE);
         settings.edit().clear().commit();
 
@@ -157,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public static void SaveGroupChatHistory(){
+    public static void SaveGroupChatHistory() {
         SharedPreferences settings = context.getSharedPreferences("groupChatHistory", Context.MODE_PRIVATE);
         settings.edit().clear().commit();
 
@@ -177,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -193,19 +184,14 @@ public class MainActivity extends AppCompatActivity {
 
                 if (User.mainUser.checkFriendExist(query)) {
                     Toast.makeText(getApplicationContext(), "Friend already added!", Toast.LENGTH_LONG).show();
-                    //chatLists.put(query, new ArrayList<>());
-
-//                    chatContainer.put(query, new MessageContainer());
-//                    SaveContainerData();
                     chatHistory.put(query, new ArrayList<>());
+                    searchView.clearFocus();
                     SaveChatHistory();
                     return false;
                 }
                 if (!query.equals("") || query != null) {
                     new PerformSearch().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
-
-
                 return false;
             }
 
@@ -214,15 +200,15 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-
         return true;
     }
 
-    public void AddToGroup(View view) {
-        //GroupListFrag.friendGroup.add(FriendListFrag.friendGroup);
-        //GroupListFrag.groupChatListAdapter.notifyDataSetChanged();
-        //findViewById(R.id.add_to_group_button).setVisibility(View.VISIBLE);
-    }
+
+//    public void AddToGroup(View view) {
+//        //GroupListFrag.friendGroup.add(FriendListFrag.friendGroup);
+//        //GroupListFrag.groupChatListAdapter.notifyDataSetChanged();
+//        //findViewById(R.id.add_to_group_button).setVisibility(View.VISIBLE);
+//    }
 
 
     public class PerformSearch extends AsyncTask<String, Void, Friend> {
@@ -243,9 +229,6 @@ public class MainActivity extends AppCompatActivity {
                     //Success. Username found and pass correct
                     if (Network.instance.ois.readObject() == Command.success) {
                         friend = (Friend) Network.instance.ois.readObject();
-                        //chatLists.put(query, new ArrayList<>());
-//                        chatContainer.put(query, new MessageContainer());
-//                        SaveContainerData();
                         chatHistory.put(query, new ArrayList<>());
                         SaveChatHistory();
                     }
@@ -289,4 +272,6 @@ public class MainActivity extends AppCompatActivity {
             FriendListFrag.mAdapter.notifyDataSetChanged();
         }
     }
+
+
 }

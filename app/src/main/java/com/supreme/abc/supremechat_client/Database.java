@@ -5,6 +5,7 @@ import android.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.supreme.abc.supremechat_client.GroupChat.FriendGroup;
 
 import java.lang.reflect.Type;
 import java.util.Hashtable;
@@ -44,4 +45,24 @@ public class Database {
         prefsEditor.putString(User.mainUser.getUsername()+"FriendList", json);
         prefsEditor.apply();
     }
+
+    public Hashtable<String, FriendGroup> LoadGroupFriendList() {
+        String json = appSharedPrefs.getString( User.mainUser.getUsername()+"GroupFriendList" , null);
+
+        //if no friend list is saved
+        if(json == null)
+            return new Hashtable<>();
+
+        //if there's friend list saved
+        Type type = new TypeToken<Hashtable<String, FriendGroup>>() {}.getType();
+        return gson.fromJson(json, type);
+    }
+
+    public void SaveGroupFriendList(Hashtable<String, FriendGroup> friend_list) {
+        SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
+        String json = gson.toJson(friend_list);
+        prefsEditor.putString(User.mainUser.getUsername()+"GroupFriendList", json);
+        prefsEditor.apply();
+    }
+
 }

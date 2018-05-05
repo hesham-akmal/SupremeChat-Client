@@ -42,9 +42,10 @@ public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.View
 
         holder.title.setText(fg.title);
 
+        allFriendNamesInsideGroup = fg.getFriendGroupName();
 
-        for(Friend f : fg.getAllFriends())
-            allFriendNamesInsideGroup += f.getUsername() + " - ";
+//        for(Friend f : fg.getAllFriends())
+//            allFriendNamesInsideGroup += f.getUsername() + " - ";
 
         holder.desc.setText(allFriendNamesInsideGroup);
     }

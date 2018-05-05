@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
@@ -76,15 +77,11 @@ public class FriendListFrag extends Fragment {
     }
 
     public void CreateNewGroup1(){
+        new_group_fab.setVisibility(View.GONE);
         //add myself to the group
         MainActivity.allChosenFriendsGroup.add(User.mainUser.getUsername());
         AsyncTasks.SendGroupInvServer(MainActivity.allChosenFriendsGroup);
         MainActivity.SaveGroupChatHistory();
-
-
-        //open group
-        //MainActivity.bottomNavigationView.setSelectedItemId(R.id.action_item2);
-        //MainActivity.bottomNavigationView.performClick();
         //////////////setting title
         /*AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Type Group Name");

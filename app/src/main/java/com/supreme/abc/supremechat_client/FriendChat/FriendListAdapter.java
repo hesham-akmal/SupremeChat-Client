@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -14,6 +13,7 @@ import com.supreme.abc.supremechat_client.MainActivity;
 import com.supreme.abc.supremechat_client.MyApplication;
 import com.supreme.abc.supremechat_client.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import network_data.Friend;
@@ -24,6 +24,8 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
     private List<Friend> personUtils;
     public static int chosenCount;
     private boolean ChossingState = false;
+
+    private static ArrayList<RelativeLayout> allgreenLayouts;
 
     public FriendListAdapter(Context context, List personUtils) {
         this.context = context;
@@ -58,7 +60,7 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
 
         public TextView title;
         public TextView desc;
-        private RelativeLayout chosenIcon;
+        private RelativeLayout greenLayout;
         public Friend fr;
         private boolean chosen;
 
@@ -69,7 +71,7 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
 
             title =  itemView.findViewById(R.id.sender_name);
             desc =  itemView.findViewById(R.id.message_text);
-            chosenIcon = itemView.findViewById(R.id.chosenIcon);
+            greenLayout = itemView.findViewById(R.id.chosenIcon);
 
             itemView.setOnClickListener(view -> {
                 if(ChossingState){
@@ -95,7 +97,7 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
                 FriendListAdapter.chosenCount++;
                 HandleNewGroupBtn();
                 chosen = true;
-                chosenIcon.setVisibility(View.VISIBLE);
+                greenLayout.setVisibility(View.VISIBLE);
                 MainActivity.allChosenFriendsGroup.add(fr.getUsername());
             }
             else
@@ -103,7 +105,7 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
                 FriendListAdapter.chosenCount--;
                 HandleNewGroupBtn();
                 chosen = false;
-                chosenIcon.setVisibility(View.GONE);
+                greenLayout.setVisibility(View.GONE);
                 MainActivity.allChosenFriendsGroup.remove(fr.getUsername());
             }
         }

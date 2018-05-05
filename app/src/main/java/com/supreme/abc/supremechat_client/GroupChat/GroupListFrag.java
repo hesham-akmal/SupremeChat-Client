@@ -28,6 +28,8 @@ public class GroupListFrag extends Fragment {
     public static RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
     public static List<FriendGroup> allFriendGroups = new ArrayList<>();
+    public static List<String> allFriendGroupsNames = new ArrayList<>();
+
     ////////////
 
     //List<MessagePacket> messageList = new ArrayList<>();
@@ -56,7 +58,8 @@ public class GroupListFrag extends Fragment {
         recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        mAdapter = new GroupListAdapter(getContext(), allFriendGroups);
+        if (mAdapter == null)
+            mAdapter = new GroupListAdapter(getContext(), allFriendGroups);
         recyclerView.setAdapter(mAdapter);
 
         return rootView;
@@ -64,6 +67,7 @@ public class GroupListFrag extends Fragment {
 
     public static void RefreshRecyclerView(FriendGroup fg) {
         GroupListFrag.allFriendGroups.add(fg);
+        GroupListFrag.allFriendGroupsNames.add(fg.getFriendGroupName());
         mAdapter.notifyDataSetChanged();
         Log.v("XXX", "333333333333333333333333333333333333333333333333333333333333333333333333"); //doesnt reach here for some reason
     }
@@ -71,7 +75,6 @@ public class GroupListFrag extends Fragment {
     public static List<FriendGroup> getAllFriendGroups() {
         return allFriendGroups;
     }
-
 
 
 }

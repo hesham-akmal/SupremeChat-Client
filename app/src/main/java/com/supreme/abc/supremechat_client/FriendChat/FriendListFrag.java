@@ -60,7 +60,7 @@ public class FriendListFrag extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        if(MainActivity.searchView!=null){
+        if (MainActivity.searchView != null) {
             MainActivity.searchView.setQuery("", false);
             MainActivity.searchView.clearFocus();
         }
@@ -85,13 +85,23 @@ public class FriendListFrag extends Fragment {
     }
 
 
-
-    public void CreateNewGroup1(){
+    public void CreateNewGroup1() {
         new_group_fab.setVisibility(View.GONE);
         //add myself to the group
         MainActivity.allChosenFriendsGroup.add(User.mainUser.getUsername());
         AsyncTasks.SendGroupInvServer(MainActivity.allChosenFriendsGroup);
-        MainActivity.SaveGroupChatHistory();
+        if (MainActivity.friendGroups.size() >= 1) {
+            MainActivity.groupChatHistory.put((MainActivity.friendGroups.get(MainActivity.friendGroups.size() - 1)).getFriendGroupName(), new ArrayList<>());
+            MainActivity.SaveGroupChatHistory();
+        }else{
+            if(MainActivity.groupChatHistory.size()!=0 && MainActivity.friendGroups.size()!=0){
+                MainActivity.groupChatHistory.put((MainActivity.friendGroups.get(0)).getFriendGroupName(), new ArrayList<>());
+                MainActivity.SaveGroupChatHistory();
+            }
+
+        }
+
+
         //////////////setting title
         /*AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Type Group Name");

@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
         prefsEditor.putString("groupChatHistory", json);
         prefsEditor.apply();
 
-        ReceivedGroupINV();
+        //ReceivedGroupINV();
     }
 
     public static void ReceivedGroupINV(){
@@ -325,6 +325,7 @@ private void clearFocusSearchBar(){
             for (Map.Entry<String, FriendGroup> entry : Database.instance.LoadGroupFriendList().entrySet()) {
                 MainActivity.friendGroups.add(entry.getValue());
                 GroupListFrag.allFriendGroups.add(entry.getValue());
+                GroupListFrag.allFriendGroupsNames.add(entry.getValue().getFriendGroupName());
             }
             return 1;
         }

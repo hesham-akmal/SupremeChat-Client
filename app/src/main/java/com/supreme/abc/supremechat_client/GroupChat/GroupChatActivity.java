@@ -73,6 +73,7 @@ public class GroupChatActivity extends AppCompatActivity {
                 //messageList.add(new MessagePacket(User.mainUser.getUsername(), recipients, chatBox.getText().toString(), true));
                 //messageAdapter.notifyDataSetChanged();
                 //messageRecycler.smoothScrollToPosition(messageAdapter.getItemCount());
+                NotifyDataSetChange();
                 chatBox.setText("");
             }
         });

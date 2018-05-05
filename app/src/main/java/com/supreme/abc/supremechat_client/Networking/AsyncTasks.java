@@ -116,20 +116,17 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
                     if (c == Command.createNewGroup) {
                         Log.v("XXX", "GROUP CREATED RECEIVED");
                         FriendGroup friendGroup = new FriendGroup((ArrayList<Friend>) Network.instance.ois.readObject());
-                        if (!MainActivity.friendGroups.contains(friendGroup.getFriendGroupName())) {
+
+                        if (!GroupListFrag.allFriendGroupsNames.contains(friendGroup.getFriendGroupName())) {
                             User.mainUser.AddFriendGroup(friendGroup.getFriendGroupName(), friendGroup);
                             MainActivity.friendGroups.add(friendGroup);
                             GroupListFrag.RefreshRecyclerView(friendGroup);
                         }
 
-                        GroupListFrag.RefreshRecyclerView(friendGroup);
-                        String title = "";
-                        for (Friend f : friendGroup.getAllFriends())
-                            title += f.getUsername() + " - ";
-                        MainActivity.groupChatHistory.put(title, new ArrayList<>());
+                        //GroupListFrag.RefreshRecyclerView(friendGroup);
+
+                        MainActivity.groupChatHistory.put(friendGroup.getFriendGroupName(), new ArrayList<>());
                         MainActivity.SaveGroupChatHistory();
-
-
 
                     } else if (c == Command.sendMsg) {
                         Log.v("XXX", "GROUP MSG RECEIVED");

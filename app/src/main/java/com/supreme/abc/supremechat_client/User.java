@@ -14,19 +14,20 @@ public class User {
     private Hashtable<String, FriendGroup> friendGroupList;
 
     //This should be called when the server authenticates the login info (user and pass are ok)
-    public void Create(String username){
+    public void Create(String username) {
         //Syncing server user with "mainUser" object.
         this.username = username;
         friendList = Database.instance.LoadFriendList();
         friendGroupList = Database.instance.LoadGroupFriendList();
     }
 
-    public void AddFriend(String username, Friend f){
-        friendList.put(username,f);
+    public void AddFriend(String username, Friend f) {
+        friendList.put(username, f);
         SaveFriendsDB();
     }
-    public void AddFriendGroup(String username, FriendGroup group){
-        friendGroupList.put(username,group);
+
+    public void AddFriendGroup(String username, FriendGroup group) {
+        friendGroupList.put(username, group);
         SaveGroupFriendsDB();
     }
 
@@ -38,19 +39,19 @@ public class User {
         this.friendList = friendList;
     }
 
-    public String getUsername(){
+    public String getUsername() {
         return this.username;
     }
 
-    private void SaveFriendsDB(){
+    private void SaveFriendsDB() {
         Database.instance.SaveFriendList(friendList);
     }
 
-    private void SaveGroupFriendsDB(){
+    private void SaveGroupFriendsDB() {
         Database.instance.SaveGroupFriendList(friendGroupList);
     }
 
-    public boolean checkFriendExist(String name){
+    public boolean checkFriendExist(String name) {
         return getFriendList().containsKey(name);
     }
 

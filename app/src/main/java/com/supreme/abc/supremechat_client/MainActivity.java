@@ -37,7 +37,7 @@ import network_data.MessagePacket;
 
 public class MainActivity extends AppCompatActivity {
 
-    private SearchView searchView;
+    public static SearchView searchView;
     public static String query;
     private SharedPreferences prefs;
     private SharedPreferences.Editor editor;
@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         ReloadChatHistory();
         ReloadGroupChatHistory();
+        ReloadFriendsGroupList();
 
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener
@@ -102,9 +103,25 @@ public class MainActivity extends AppCompatActivity {
 
         //Used to select an item programmatically
         //bottomNavigationView.getMenu().getItem(2).setChecked(true);
-
+        new UpdateGroupFriendListGUI().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
+
+    public static void ReloadFriendsGroupList() {
+        //CHATHSITORY
+
+        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Gson gson = new Gson();
+
+        String json = appSharedPrefs.getString("GroupFriendList", "");
+
+        Type type = new TypeToken<List<FriendGroup>>() {
+        }.getType();
+        friendGroups = gson.fromJson(json, type);
+        if (friendGroups  == null) {
+            friendGroups  = new ArrayList<>();
+        }
+    }
 
     public static void ReloadChatHistory() {
         //CHATHSITORY
@@ -198,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
                 if (User.mainUser.checkFriendExist(query)) {
                     Toast.makeText(getApplicationContext(), "Friend already added!", Toast.LENGTH_LONG).show();
                     chatHistory.put(query, new ArrayList<>());
+                    searchView.setQuery("", false);
                     searchView.clearFocus();
                     SaveChatHistory();
                     return false;
@@ -288,4 +306,22 @@ public class MainActivity extends AppCompatActivity {
             FriendListFrag.mAdapter.notifyDataSetChanged();
         }
     }
+
+    public static class UpdateGroupFriendListGUI extends AsyncTask<String, Void, Integer> {
+        @Override
+        protected Integer doInBackground(String... s) {
+            for (Map.Entry<String, FriendGroup> entry : Database.instance.LoadGroupFriendList().entrySet()) {
+                MainActivity.friendGroups.add(entry.getValue());
+                GroupListFrag.allFriendGroups.add(entry.getValue());
+            }
+            return 1;
+        }
+
+        @Override
+        protected void onPostExecute(Integer i) {
+            if(GroupListFrag.mAdapter!=null)
+                GroupListFrag.mAdapter.notifyDataSetChanged();
+        }
+    }
+
 }

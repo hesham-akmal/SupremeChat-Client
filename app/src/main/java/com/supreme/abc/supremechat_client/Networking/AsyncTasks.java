@@ -118,8 +118,8 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
                         FriendGroup friendGroup = new FriendGroup((ArrayList<Friend>) Network.instance.ois.readObject());
                         if (!MainActivity.friendGroups.contains(friendGroup.getFriendGroupName())) {
                             User.mainUser.AddFriendGroup(friendGroup.getFriendGroupName(), friendGroup);
+                            MainActivity.friendGroups.add(friendGroup);
                             GroupListFrag.RefreshRecyclerView(friendGroup);
-                            new GroupListFrag.UpdateGroupFriendListGUI().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         }
 
                         GroupListFrag.RefreshRecyclerView(friendGroup);

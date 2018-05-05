@@ -45,6 +45,7 @@ public class FriendListFrag extends Fragment {
     private RecyclerView recyclerView;
     public static RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
+    private View rootView;
 
     public static FriendListFrag newInstance() {
         FriendListFrag fragment = new FriendListFrag();
@@ -58,7 +59,14 @@ public class FriendListFrag extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.friend_list_frag, container, false);
+
+        if(MainActivity.searchView!=null){
+            MainActivity.searchView.setQuery("", false);
+            MainActivity.searchView.clearFocus();
+        }
+
+
+        rootView = inflater.inflate(R.layout.friend_list_frag, container, false);
 
         //New Group fab init////////////////////////
         new_group_fab = rootView.findViewById(R.id.new_group_fab);
@@ -75,6 +83,8 @@ public class FriendListFrag extends Fragment {
 
         return rootView;
     }
+
+
 
     public void CreateNewGroup1(){
         new_group_fab.setVisibility(View.GONE);

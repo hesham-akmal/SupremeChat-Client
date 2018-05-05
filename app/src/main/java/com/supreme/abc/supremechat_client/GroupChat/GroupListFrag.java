@@ -58,7 +58,7 @@ public class GroupListFrag extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         mAdapter = new GroupListAdapter(getContext(), allFriendGroups);
         recyclerView.setAdapter(mAdapter);
-        new UpdateGroupFriendListGUI().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
         return rootView;
     }
 
@@ -73,19 +73,5 @@ public class GroupListFrag extends Fragment {
     }
 
 
-    public static class UpdateGroupFriendListGUI extends AsyncTask<String, Void, Integer> {
-        @Override
-        protected Integer doInBackground(String... s) {
-            for (Map.Entry<String, FriendGroup> entry : Database.instance.LoadGroupFriendList().entrySet()) {
-                MainActivity.friendGroups.add(entry.getValue());
-                GroupListFrag.allFriendGroups.add(entry.getValue());
-            }
-            return 1;
-        }
 
-        @Override
-        protected void onPostExecute(Integer i) {
-            GroupListFrag.mAdapter.notifyDataSetChanged();
-        }
-    }
 }

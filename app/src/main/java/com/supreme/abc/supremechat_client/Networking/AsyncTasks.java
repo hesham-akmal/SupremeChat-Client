@@ -156,7 +156,6 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
                 MainActivity.groupChatHistory.get(title).add(msgs[0]);
                 GroupChatActivity.NotifyDataSetChange();
                 MainActivity.SaveGroupChatHistory();
-
             }else{
                 MainActivity.groupChatHistory.get(title).add(msgs[0]);
                 GroupChatActivity.NotifyDataSetChange();

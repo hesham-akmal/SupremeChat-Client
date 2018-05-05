@@ -43,10 +43,6 @@ public class GroupChatActivity extends AppCompatActivity {
         title = friendGroup.getFriendGroupName();
 
         for (Friend f : friendGroup.getAllFriends()) {
-
-            if(f.getUsername().equalsIgnoreCase(User.mainUser.getUsername()))
-                continue;
-
             recipients.add(f.getUsername());
         }
 

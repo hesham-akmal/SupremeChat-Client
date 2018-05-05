@@ -24,7 +24,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
     private static RecyclerView messageRecycler;
     private static MessageListAdapter messageAdapter;
-    public  List<MessagePacket> messageList;
+    public  static List<MessagePacket> messageList;
     public List<String> recipients = new ArrayList<>();
     public String title;
     public static FriendGroup friendGroup;
@@ -53,7 +53,7 @@ public class GroupChatActivity extends AppCompatActivity {
         setTitle(title);
         if (MainActivity.groupChatHistory.get(title) == null || MainActivity.groupChatHistory.size() == 0) {
             MainActivity.groupChatHistory.put(friendGroup.getFriendGroupName(), new ArrayList<>());
-            messageList = new ArrayList<>();
+            messageList = MainActivity.groupChatHistory.get(friendGroup.getFriendGroupName());
         } else {
             messageList = MainActivity.groupChatHistory.get(title);
         }
@@ -75,6 +75,8 @@ public class GroupChatActivity extends AppCompatActivity {
                 String text = chatBox.getText().toString();
                 AsyncTasks.SendGroupMSGtoClient(recipients, text);
                 messageList.add(new MessagePacket(User.mainUser.getUsername(), recipients, chatBox.getText().toString(), true));
+                //MainActivity.groupChatHistory.get(friendGroup.getFriendGroupName()).add(new MessagePacket(User.mainUser.getUsername(), recipients, chatBox.getText().toString(), true));
+                MainActivity.SaveGroupChatHistory();
                 messageAdapter.notifyDataSetChanged();
                 messageRecycler.smoothScrollToPosition(messageAdapter.getItemCount());
                 NotifyDataSetChange();

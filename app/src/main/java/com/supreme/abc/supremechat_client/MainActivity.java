@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         case R.id.action_item2:
                             selectedFragment = GroupListFrag.newInstance();
-                            bottomNavigationView.getMenu().getItem(1).setIcon(ContextCompat.getDrawable(context, R.drawable.g1));
+                            //bottomNavigationView.getMenu().getItem(1).setIcon(ContextCompat.getDrawable(context, R.drawable.g1));
                             break;
                         case R.id.action_item3:
                             selectedFragment = ItemThreeFragment.newInstance();
@@ -163,27 +163,27 @@ public class MainActivity extends AppCompatActivity {
 
     public static void SaveChatHistory() {
         SharedPreferences settings = context.getSharedPreferences("chatHistory", Context.MODE_PRIVATE);
-        settings.edit().clear().commit();
+        settings.edit().clear().apply();
 
         SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
         Gson gson = new Gson();
         String json = gson.toJson(chatHistory);
         prefsEditor.putString("chatHistory", json);
-        prefsEditor.commit();
+        prefsEditor.apply();
 
     }
 
     public static void SaveGroupChatHistory() {
         SharedPreferences settings = context.getSharedPreferences("groupChatHistory", Context.MODE_PRIVATE);
-        settings.edit().clear().commit();
+        settings.edit().clear().apply();
 
         SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
         Gson gson = new Gson();
         String json = gson.toJson(groupChatHistory);
         prefsEditor.putString("groupChatHistory", json);
-        prefsEditor.commit();
+        prefsEditor.apply();
 
         ReceivedGroupINV();
     }
@@ -191,8 +191,9 @@ public class MainActivity extends AppCompatActivity {
     public static void ReceivedGroupINV(){
         //FriendListAdapter.clearAll();
 
+        Toast.makeText(context, "Group chat created!", Toast.LENGTH_LONG).show();
         //return normal group icon
-        bottomNavigationView.getMenu().getItem(1).setIcon(ContextCompat.getDrawable(context, R.drawable.g2));
+        //bottomNavigationView.getMenu().getItem(1).setIcon(ContextCompat.getDrawable(context, R.drawable.g2));
     }
 
 

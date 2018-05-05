@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.supreme.abc.supremechat_client.MainActivity;
@@ -22,6 +23,7 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
     private Context context;
     private List<Friend> personUtils;
     public static int chosenCount;
+    private boolean ChossingState = false;
 
     public FriendListAdapter(Context context, List personUtils) {
         this.context = context;
@@ -56,7 +58,7 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
 
         public TextView title;
         public TextView desc;
-        private ImageView chosenIcon;
+        private RelativeLayout chosenIcon;
         public Friend fr;
         private boolean chosen;
 
@@ -70,8 +72,14 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
             chosenIcon = itemView.findViewById(R.id.chosenIcon);
 
             itemView.setOnClickListener(view -> {
-                Friend fr = (Friend) view.getTag();
-                context.startActivity(new Intent(MyApplication.getAppContext(), ChatActivity.class).putExtra("Friend", fr));
+                if(ChossingState){
+                    LongHoldHandler();
+                }
+                else
+                {
+                    Friend fr = (Friend) view.getTag();
+                    context.startActivity(new Intent(MyApplication.getAppContext(), ChatActivity.class).putExtra("Friend", fr));
+                }
             });
 
             itemView.setOnLongClickListener(view -> {
@@ -101,6 +109,11 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
         }
 
         private void HandleNewGroupBtn(){
+            if(FriendListAdapter.chosenCount >= 1)
+                ChossingState = true;
+            else
+                ChossingState = false;
+
             if(FriendListAdapter.chosenCount >= 2)
                 FriendListFrag.new_group_fab.setVisibility(View.VISIBLE);
             else

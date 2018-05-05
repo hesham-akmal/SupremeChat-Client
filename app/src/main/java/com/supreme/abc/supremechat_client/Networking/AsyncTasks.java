@@ -1,6 +1,8 @@
 package com.supreme.abc.supremechat_client.Networking;
 
+import android.app.Activity;
 import android.os.AsyncTask;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
 //import com.supreme.abc.supremechat_client.MainActivity;
@@ -10,6 +12,8 @@ import com.supreme.abc.supremechat_client.GroupChat.FriendGroup;
 import com.supreme.abc.supremechat_client.GroupChat.GroupChatActivity;
 import com.supreme.abc.supremechat_client.GroupChat.GroupListFrag;
 import com.supreme.abc.supremechat_client.MainActivity;
+import com.supreme.abc.supremechat_client.MyApplication;
+import com.supreme.abc.supremechat_client.R;
 import com.supreme.abc.supremechat_client.User;
 
 import java.net.SocketException;
@@ -104,11 +108,11 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
                 try {
 
                     Network.instance.socket.setSoTimeout(10);
-                    Log.v("XXX", "LISTEN TO MSGS");
+                    //Log.v("XXX", "LISTEN TO MSGS");
 
                     Command c = (Command) Network.instance.ois.readObject();
                     if (c == Command.createNewGroup) {
-                        Log.v("XXX", "22222222222222222222222222222222222");
+                        Log.v("XXX", "GROUP CREATED RECEIVED" );
                         FriendGroup friendGroup = new FriendGroup((ArrayList<Friend>) Network.instance.ois.readObject());
                         GroupListFrag.RefreshRecyclerView(friendGroup);
                         String title = "";
@@ -139,19 +143,17 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
 
         if (!msgs[0].IsGroupMSG()) {
             MainActivity.chatHistory.get(msgs[0].getSender()).add(msgs[0]);
-
             ChatActivity.NotifyDataSetChange();
             MainActivity.SaveChatHistory();
         } else if(msgs[0].IsGroupMSG()){
-            List<String> recievers = msgs[0].getListOfRecievers();
 
             String title ="";
-            for(String s : recievers)
+            for(String s : msgs[0].getListOfRecievers())
                 title += s + " - ";
+
             if(!MainActivity.groupChatHistory.containsKey(title)){
                 MainActivity.groupChatHistory.put(title, new ArrayList<>());
                 MainActivity.groupChatHistory.get(title).add(msgs[0]);
-                GroupChatActivity.NotifyDataSetChange();
                 GroupChatActivity.NotifyDataSetChange();
                 MainActivity.SaveGroupChatHistory();
 
@@ -160,12 +162,7 @@ class ListenToMessages extends AsyncTask<String, MessagePacket, Void> {
                 GroupChatActivity.NotifyDataSetChange();
                 MainActivity.SaveGroupChatHistory();
             }
-
-
-
-
         }
-
     }
 }
 
@@ -264,4 +261,9 @@ class SendGroupInvServer extends AsyncTask<String, Void, Void> {
         }
         return null;
     }
+
+
+
+
+
 }

@@ -80,6 +80,11 @@ public class FriendListFrag extends Fragment {
         MainActivity.allChosenFriendsGroup.add(User.mainUser.getUsername());
         AsyncTasks.SendGroupInvServer(MainActivity.allChosenFriendsGroup);
         MainActivity.SaveGroupChatHistory();
+
+
+        //open group
+        //MainActivity.bottomNavigationView.setSelectedItemId(R.id.action_item2);
+        //MainActivity.bottomNavigationView.performClick();
         //////////////setting title
         /*AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Type Group Name");

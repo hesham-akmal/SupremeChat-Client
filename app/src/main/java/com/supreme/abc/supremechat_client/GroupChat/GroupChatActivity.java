@@ -22,7 +22,7 @@ import network_data.MessagePacket;
 
 public class GroupChatActivity extends AppCompatActivity {
 
-    private RecyclerView messageRecycler;
+    private static RecyclerView messageRecycler;
     private static MessageListAdapter messageAdapter;
     public List<MessagePacket> messageList;
     public List<String> recipients = new ArrayList<>();
@@ -50,6 +50,7 @@ public class GroupChatActivity extends AppCompatActivity {
         setTitle(title);
         if (MainActivity.groupChatHistory.get(title) == null) {
             messageList = new ArrayList<>();
+
         } else {
             messageList = MainActivity.groupChatHistory.get(title);
         }
@@ -70,19 +71,22 @@ public class GroupChatActivity extends AppCompatActivity {
             if (chatBox.getText() != null || !chatBox.getText().equals("")) {
                 String text = chatBox.getText().toString();
                 AsyncTasks.SendGroupMSGtoClient(recipients, text);
-                messageList.add(new MessagePacket(User.mainUser.getUsername(), recipients, chatBox.getText().toString(), true));
-                messageAdapter.notifyDataSetChanged();
-                messageRecycler.smoothScrollToPosition(messageAdapter.getItemCount());
+                //messageList.add(new MessagePacket(User.mainUser.getUsername(), recipients, chatBox.getText().toString(), true));
+                //messageAdapter.notifyDataSetChanged();
+                //messageRecycler.smoothScrollToPosition(messageAdapter.getItemCount());
                 chatBox.setText("");
-
             }
         });
     }
 
     public static void NotifyDataSetChange() {
-        if(messageAdapter == null)
+        if(messageAdapter == null){
+            System.out.println("messageAdapter == null");
             return;
+        }
 
         messageAdapter.notifyDataSetChanged();
+        messageRecycler.smoothScrollToPosition(messageAdapter.getItemCount());
+
     }
 }

@@ -91,11 +91,12 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             messageText = (TextView) itemView.findViewById(R.id.text_message_body);
             //timeText = (TextView) itemView.findViewById(R.id.text_message_time);
             //profileImage = (ImageView) itemView.findViewById(R.id.image_message_profile);
+
         }
 
         void bind(MessagePacket message) {
             messageText.setText(message.getText());
-
+            nameText.setText(message.getSender());
         }
     }
 

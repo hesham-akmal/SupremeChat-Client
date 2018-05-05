@@ -25,7 +25,7 @@ import network_data.MessagePacket;
 
 public class ChatActivity extends AppCompatActivity {
 
-    private RecyclerView messageRecycler;
+    private static RecyclerView messageRecycler;
     private static MessageListAdapter messageAdapter;
     public List<MessagePacket> messageList;
     static Friend friend;
@@ -73,7 +73,6 @@ public class ChatActivity extends AppCompatActivity {
                 messageAdapter.notifyDataSetChanged();
                 messageRecycler.smoothScrollToPosition(messageAdapter.getItemCount());
                 chatBox.setText("");
-
             }
         });
 
@@ -81,6 +80,7 @@ public class ChatActivity extends AppCompatActivity {
 
     public static void NotifyDataSetChange() {
         messageAdapter.notifyDataSetChanged();
+        messageRecycler.smoothScrollToPosition(messageAdapter.getItemCount());
     }
 
 

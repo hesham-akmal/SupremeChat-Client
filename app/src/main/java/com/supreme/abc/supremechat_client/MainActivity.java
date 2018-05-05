@@ -44,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     public static List<Friend> tempUser = new ArrayList<>();
     public static Context context;
 
+    public static BottomNavigationView bottomNavigationView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         ReloadChatHistory();
         ReloadGroupChatHistory();
 
-        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
+        bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener
                 (item -> {
                     Fragment selectedFragment = null;

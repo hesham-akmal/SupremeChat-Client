@@ -43,6 +43,10 @@ public class GroupChatActivity extends AppCompatActivity {
         title = friendGroup.getFriendGroupName();
 
         for (Friend f : friendGroup.getAllFriends()) {
+
+            if(f.getUsername().equalsIgnoreCase(User.mainUser.getUsername()))
+                continue;
+
             recipients.add(f.getUsername());
         }
 
@@ -70,10 +74,10 @@ public class GroupChatActivity extends AppCompatActivity {
             if (chatBox.getText() != null || !chatBox.getText().equals("")) {
                 String text = chatBox.getText().toString();
                 AsyncTasks.SendGroupMSGtoClient(recipients, text);
-                //messageList.add(new MessagePacket(User.mainUser.getUsername(), recipients, chatBox.getText().toString(), true));
-                //messageAdapter.notifyDataSetChanged();
-                //messageRecycler.smoothScrollToPosition(messageAdapter.getItemCount());
-                //NotifyDataSetChange();
+                messageList.add(new MessagePacket(User.mainUser.getUsername(), recipients, chatBox.getText().toString(), true));
+                messageAdapter.notifyDataSetChanged();
+                messageRecycler.smoothScrollToPosition(messageAdapter.getItemCount());
+                NotifyDataSetChange();
                 chatBox.setText("");
             }
         });
